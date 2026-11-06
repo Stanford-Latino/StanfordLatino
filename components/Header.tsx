@@ -103,9 +103,6 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
           {memberPages.map((p) => (
             <Link key={p.href} href={p.href} className={pathname.startsWith(p.href) ? 'active' : ''}>{p.label}</Link>
           ))}
-          <form action="/auth/signout" method="post" style={{ display: 'contents' }}>
-            <button style={{ textDecoration: 'underline', fontWeight: 400 }}>Log out</button>
-          </form>
         </nav>
       )}
     </>

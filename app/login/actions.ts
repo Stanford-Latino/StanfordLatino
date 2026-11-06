@@ -25,12 +25,12 @@ export async function sendLoginLink(_prev: LoginState, formData: FormData): Prom
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}` },
+    options: { emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(safeNext)}` },
   });
 
   if (error) {
     const wait = error.message.match(/after (\d+) seconds?/i);
-    if (wait) return { error: `Please wait ${wait[1]} seconds before asking for another code.`, sentTo: formData.get('resend') ? email : undefined };
+    if (wait) return { error: `Please wait ${wait[1]} seconds before sending another link.`, sentTo: formData.get('resend') ? email : undefined };
     const limited = error.status === 429 || /rate|limit/i.test(error.message);
     return {
       error: limited

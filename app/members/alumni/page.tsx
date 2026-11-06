@@ -4,24 +4,25 @@ import AlumniDirectory, { type Alum } from './AlumniDirectory';
 import AddPanel, { Field } from '@/components/AddPanel';
 import ImageField from '@/components/ImageField';
 import { addAlum, importAlumni, reviewAlum } from '../actions';
-import { isBoardMember, resolvePhoto, signPaths } from '@/lib/board';
+import { isBoardMember, isPresident, resolvePhoto, signPaths } from '@/lib/board';
 
 export const metadata: Metadata = { title: 'Alumni Directory · Stanford Latino' };
 
 export default async function AlumniPage() {
   const supabase = await createClient();
-  const [{ data }, board] = await Promise.all([
+  const [{ data }, board, president] = await Promise.all([
     supabase
       .from('alumni')
       .select('id, full_name, class_year, major, role, company, industry, city, linkedin_url, email, photo_url, status')
       .order('full_name'),
     isBoardMember(),
+    isPresident(),
   ]);
   const all = (data ?? []) as (Alum & { status: string })[];
   const signed = await signPaths(all.map((r) => r.photo_url));
   const withPhotos = all.map((r) => ({ ...r, photo_url: resolvePhoto(r.photo_url, signed) }));
   const alumni = withPhotos.filter((r) => r.status === 'approved');
-  const pending = board ? withPhotos.filter((r) => r.status === 'pending') : [];
+  const pending = president ? withPhotos.filter((r) => r.status === 'pending') : [];
 
   return (
     <div className="page" style={{ maxWidth: 1240 }}>

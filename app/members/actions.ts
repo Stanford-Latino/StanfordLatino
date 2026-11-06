@@ -206,9 +206,9 @@ export async function deleteAlbum(f: FormData) {
   redirect('/members/photos');
 }
 
-/** Board: approve or turn down an alumni request. */
+/** Presidents: approve or turn down an alumni request. */
 export async function reviewAlum(f: FormData) {
-  const supabase = await boardClient();
+  const supabase = await presidentClient();
   const id = String(f.get('id') ?? '');
   if (!supabase || !id) return;
   const decision = f.get('decision');

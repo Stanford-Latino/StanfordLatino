@@ -142,7 +142,7 @@ export const about = {
     { title: 'Join the mailing list', description: 'Event invites and opportunities, straight to your inbox: [mailing list link]' },
     { title: 'Come to an event', description: 'Comunidad socials, speaker events and service days are open to all undergrads.' },
     { title: 'Log in as a member', description: 'Use your @stanford.edu email to log in to the alumni directory, events, jobs and photos.' },
-    { title: 'Join the board', description: 'Board applications open each [quarter]. Dates go out on the mailing list.' },
+    { title: 'Join the board', description: 'Board applications open each fall. Dates go out on the mailing list.' },
   ],
 };
 

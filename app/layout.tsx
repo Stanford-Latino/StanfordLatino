@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getUser } from '@/lib/supabase/server';
@@ -15,7 +15,10 @@ export const metadata: Metadata = {
   title: 'Stanford Latino',
   description:
     'Stanford Latino is a student-led undergraduate organization bringing together the Latino community at Stanford.',
+  appleWebApp: { capable: true, title: 'Stanford Latino', statusBarStyle: 'default' },
 };
+
+export const viewport: Viewport = { themeColor: '#8C1515' };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();

@@ -30,7 +30,8 @@ button { font: inherit; }
 /* ── Header ─────────────────────────────── */
 .site-header { position: relative; z-index: 30; background: var(--maroon); }
 .header-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding: 10px 24px; }
-.brand { font-family: var(--font-serif), Georgia, serif; font-weight: 700; font-size: 26px; color: #fff; text-decoration: none; padding: 6px 0; min-height: 44px; display: inline-flex; align-items: center; }
+.brand { font-family: var(--font-serif), Georgia, serif; font-weight: 700; font-size: 26px; color: #fff; text-decoration: none; padding: 6px 0; min-height: 44px; display: inline-flex; align-items: center; gap: 12px; }
+.brand img { width: 44px; height: 44px; border-radius: 50%; flex: none; }
 .nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .nav-link {
   display: inline-flex; align-items: center; gap: 6px;

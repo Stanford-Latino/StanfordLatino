@@ -41,7 +41,7 @@ export const board: { label: string; size: number; members: Person[] }[] = [
       { name: 'Mateo Lopez', role: 'VP, Internships' },
       { name: 'Natalia Vergara', role: 'VP, Comunidad' },
       { name: 'Mariana Simon', role: 'VP, Comunidad' },
-      { name: 'Evaristo Derby', role: 'VP, Comunidad' },
+      { name: 'Evaristo Derby', role: 'VP, Comunidad', photo: '/images/evaristo.jpg' },
       { name: 'Mateo Perez', role: 'VP, Speaker Series' },
       { name: 'Fausto Ramon', role: 'VP, Speaker Series' },
     ],

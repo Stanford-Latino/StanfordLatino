@@ -12,6 +12,15 @@ export async function isBoardMember() {
   return Boolean(row);
 }
 
+/** True if the logged-in person is a president (can manage board access). */
+export async function isPresident() {
+  const user = await getUser();
+  if (!user?.email) return false;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('is_president');
+  return !error && data === true;
+}
+
 /** Photos are stored privately; this turns stored paths into temporary links. */
 export async function signPaths(paths: (string | null | undefined)[]) {
   const toSign = Array.from(new Set(paths.filter((p): p is string => Boolean(p) && !/^https?:\/\//.test(p as string))));

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient, getUser } from '@/lib/supabase/server';
 import { isAllowedEmail } from '@/lib/auth';
-import { isBoardMember } from '@/lib/board';
+import { isBoardMember, isPresident } from '@/lib/board';
 
 export type FormState = { ok?: boolean; error?: string; message?: string };
 
@@ -188,19 +188,26 @@ export async function reviewAlum(f: FormData) {
 }
 
 /** Board: give or remove board access by email. */
+async function presidentClient() {
+  const supabase = await memberClient();
+  if (!supabase || !(await isPresident())) return null;
+  return supabase;
+}
+
 export async function addBoardEmail(_prev: FormState, f: FormData): Promise<FormState> {
-  const supabase = await boardClient();
-  if (!supabase) return { error: 'Only board members can do this.' };
+  const supabase = await presidentClient();
+  if (!supabase) return { error: 'Only presidents can do this.' };
   const email = (text(f, 'email', 200) ?? '').toLowerCase();
   if (!isAllowedEmail(email)) return { error: 'Use a @stanford.edu email.' };
-  const { error } = await supabase.from('board_members').upsert({ email, name: text(f, 'name', 120) });
+  const role = f.get('role') === 'president' ? 'president' : 'board';
+  const { error } = await supabase.from('board_members').upsert({ email, name: text(f, 'name', 120), role });
   if (error) return { error: 'Couldn’t add that email. Try again.' };
   revalidatePath('/members');
-  return { ok: true, message: `${email} can now add and edit content.` };
+  return { ok: true, message: `${email} added as ${role === 'president' ? 'a president' : 'a board member'}.` };
 }
 
 export async function removeBoardEmail(f: FormData) {
-  const supabase = await boardClient();
+  const supabase = await presidentClient();
   const email = String(f.get('email') ?? '').toLowerCase();
   const me = (await getUser())?.email?.toLowerCase();
   if (!supabase || !email || email === me) return;

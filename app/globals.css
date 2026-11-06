@@ -309,3 +309,24 @@ textarea.input { resize: vertical; font: inherit; }
 .login-choice button:hover, .login-choice button:focus-visible { color: var(--maroon); }
 .login-choice hr { border: 0; border-top: 1px solid var(--line-2, #ccc); margin: 0; }
 @media (max-width: 640px) { .login-choice button { font-size: 34px; padding: 28px 0; } }
+
+/* Members home: editorial index instead of boxes */
+.member-index { display: flex; flex-direction: column; border-top: 1px solid var(--ink); }
+.member-index a { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto; align-items: baseline; gap: 32px; padding: 34px 4px; border-bottom: 1px solid var(--line-2, #d6d6d6); text-decoration: none; color: var(--ink); }
+.member-index .name { font-family: var(--font-serif); font-size: 44px; font-weight: 500; line-height: 1.1; }
+.member-index .desc { font-size: 18px; line-height: 1.5; }
+.member-index .arrow { font-size: 24px; transition: transform .15s; }
+.member-index a:hover .name, .member-index a:focus-visible .name { color: var(--maroon); }
+.member-index a:hover .arrow { transform: translateX(4px); }
+.board-access { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+.board-access h2 { font-size: 32px; font-weight: 500; }
+.board-access > p { font-size: 17px; line-height: 1.6; }
+.board-access ul { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line-2, #d6d6d6); }
+.board-access li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line-2, #d6d6d6); font-size: 17px; }
+.board-access .muted { color: #555; font-weight: 400; }
+@media (max-width: 640px) {
+  .member-index a { grid-template-columns: 1fr auto; gap: 6px 16px; padding: 24px 2px; }
+  .member-index .name { font-size: 32px; }
+  .member-index .desc { grid-column: 1; font-size: 16px; }
+  .member-index .arrow { grid-row: 1; grid-column: 2; }
+}

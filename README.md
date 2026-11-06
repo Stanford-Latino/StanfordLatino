@@ -212,3 +212,14 @@ Already done if the site is live. Kept here in case it ever needs to be rebuilt 
 ---
 
 _Originally built in 2026 by the Stanford Latino board (Co-Presidents Manuel Palomares and Sigal Malka)._
+
+## Publishing (who can make changes go live)
+
+Every push to `main` is published by GitHub Actions (`.github/workflows/deploy.yml`), so anyone with
+write access to the GitHub repo can update the site. It needs three secrets in
+GitHub → Settings → Secrets and variables → Actions:
+
+- `VERCEL_TOKEN`: Vercel → Account Settings → Tokens → Create
+- `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`: Vercel → project → Settings → General (Team ID and Project ID)
+
+You can also publish manually: GitHub → Actions → Deploy to Vercel → Run workflow.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type CalEvent = {
   id: string;
@@ -48,6 +48,12 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
     setYm({ y: d.getFullYear(), m: d.getMonth() });
     setSelId(null);
   };
+  useEffect(() => {
+    if (!selId) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelId(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selId]);
   const time = (iso: string) =>
     new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
@@ -112,21 +118,31 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
       </ul>
 
       {sel && (
-        <div className="event-detail" style={{ background: cat(sel.category).bg }}>
-          {sel.flyer_url && (
-            <a href={sel.flyer_url} target="_blank" rel="noreferrer" style={{ flex: 'none' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={sel.flyer_url} alt={`${sel.title} flyer`} style={{ width: 200, maxHeight: 280, objectFit: 'contain', background: '#fff' }} />
-            </a>
-          )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 220 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              {cat(sel.category).label} · {time(sel.starts_at)}
+        <div className="event-overlay" onClick={() => setSelId(null)}>
+          <div
+            className="event-pop"
+            role="dialog"
+            aria-modal="true"
+            aria-label={sel.title}
+            onClick={(e) => e.stopPropagation()}
+            style={{ borderTop: `6px solid ${cat(sel.category).dot}` }}
+          >
+            <button className="event-pop-close" aria-label="Close" onClick={() => setSelId(null)}>×</button>
+            <p className="event-pop-meta">
+              <i className="dot" style={{ background: cat(sel.category).dot }} />
+              {cat(sel.category).label}
             </p>
             <h3>{sel.title}</h3>
-            <p style={{ fontSize: 16 }}>{[sel.location, sel.description].filter(Boolean).join(' · ')}</p>
+            <p className="event-pop-when">{time(sel.starts_at)}</p>
+            {sel.location && <p className="event-pop-where">{sel.location}</p>}
+            {sel.description && <p className="event-pop-desc">{sel.description}</p>}
+            {sel.flyer_url && (
+              <a href={sel.flyer_url} target="_blank" rel="noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={sel.flyer_url} alt={`${sel.title} flyer`} />
+              </a>
+            )}
           </div>
-          <button className="btn btn-outline" onClick={() => setSelId(null)}>Close</button>
         </div>
       )}
 

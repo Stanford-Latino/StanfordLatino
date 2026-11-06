@@ -337,3 +337,14 @@ textarea.input { resize: vertical; font: inherit; }
 /* Alumni photos are round so LinkedIn headshots look right */
 .alum .letter { border-radius: 50%; }
 .alum .letter img { object-position: center 30%; }
+
+/* Event details open as a popup over the calendar */
+.event-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 50; }
+.event-pop { position: relative; background: #fff; width: 100%; max-width: 520px; max-height: calc(100vh - 48px); overflow-y: auto; padding: 32px 32px 28px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25); }
+.event-pop h3 { font-size: 32px; line-height: 1.15; padding-right: 32px; }
+.event-pop-meta { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.event-pop-when { font-size: 18px; font-weight: 600; }
+.event-pop-where { font-size: 17px; }
+.event-pop-desc { font-size: 17px; line-height: 1.6; margin-top: 6px; }
+.event-pop img { width: 100%; max-height: 420px; object-fit: contain; background: #f6f6f6; margin-top: 12px; }
+.event-pop-close { position: absolute; top: 14px; right: 16px; width: 40px; height: 40px; border: 0; background: none; font-size: 30px; line-height: 1; cursor: pointer; color: var(--ink); }

@@ -9,6 +9,7 @@ export type CalEvent = {
   starts_at: string;
   location: string | null;
   description: string | null;
+  flyer_url: string | null;
 };
 
 const CATS: Record<string, { label: string; dot: string; bg: string }> = {
@@ -97,7 +98,13 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
 
       {sel && (
         <div className="event-detail" style={{ background: cat(sel.category).bg }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {sel.flyer_url && (
+            <a href={sel.flyer_url} target="_blank" rel="noreferrer" style={{ flex: 'none' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={sel.flyer_url} alt={`${sel.title} flyer`} style={{ width: 200, maxHeight: 280, objectFit: 'contain', background: '#fff' }} />
+            </a>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 220 }}>
             <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {cat(sel.category).label} · {time(sel.starts_at)}
             </p>

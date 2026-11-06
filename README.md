@@ -53,6 +53,7 @@ Do this every spring, before the outgoing board leaves:
 - [ ] **Domain:** confirm who pays the renewal and when it renews. Turn on auto-renew.
       An expired domain takes the whole site down.
 - [ ] Remove people who are leaving from all four accounts.
+- [ ] Update the `board_members` table in Supabase (new board emails in, old ones out).
 - [ ] Walk the new person through section 4 of this guide (15 minutes).
 - [ ] Update the "Where the login details live" line above if it changed.
 
@@ -112,7 +113,12 @@ It appears in the menu and on the home page automatically.
 ### 4c. Members area: events, jobs, alumni, photo albums
 
 **Any logged-in member can add these right on the website:** a new album (Photos page), photos
-(inside an album), an event (Events page), and themselves to the alumni directory (Alumni page).
+(inside an album), an event with an optional flyer (Events page), and themselves to the alumni
+directory with an optional photo (Alumni page).
+
+**Board members** also get an **Upload a spreadsheet** button on the Alumni page to add many alumni at
+once (template: `public/alumni-template.csv`). Who counts as board is the `board_members` table:
+add each board member's @stanford.edu email there every year, and remove people who leave.
 
 To edit or remove anything (or add jobs), use **Supabase → Table Editor** (looks like a spreadsheet).
 Click a table, then **Insert → Insert row**, or click a cell to edit it. Changes show on the site immediately.

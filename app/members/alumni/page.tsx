@@ -2,16 +2,24 @@ import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import AlumniDirectory, { type Alum } from './AlumniDirectory';
 import AddPanel, { Field } from '@/components/AddPanel';
-import { addAlum } from '../actions';
+import ImageField from '@/components/ImageField';
+import { addAlum, importAlumni } from '../actions';
+import { isBoardMember, resolvePhoto, signPaths } from '@/lib/board';
 
 export const metadata: Metadata = { title: 'Alumni Directory · Stanford Latino' };
 
 export default async function AlumniPage() {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('alumni')
-    .select('id, full_name, class_year, major, role, company, industry, city, linkedin_url, email, photo_url')
-    .order('full_name');
+  const [{ data }, board] = await Promise.all([
+    supabase
+      .from('alumni')
+      .select('id, full_name, class_year, major, role, company, industry, city, linkedin_url, email, photo_url')
+      .order('full_name'),
+    isBoardMember(),
+  ]);
+  const rows = (data ?? []) as Alum[];
+  const signed = await signPaths(rows.map((r) => r.photo_url));
+  const alumni = rows.map((r) => ({ ...r, photo_url: resolvePhoto(r.photo_url, signed) }));
 
   return (
     <div className="page" style={{ maxWidth: 1240 }}>
@@ -21,7 +29,13 @@ export default async function AlumniPage() {
           Find Stanford Latino alumni by name, class, company or city, and reach out for coffee chats, referrals and mentoring.
         </p>
       </div>
-      <AddPanel buttonLabel="Add yourself as an alum" title="Join the alumni directory" submitLabel="Add me" action={addAlum}>
+
+      <AddPanel
+        buttonLabel={board ? 'Add an alum' : 'Add yourself as an alum'}
+        title={board ? 'Add an alum' : 'Join the alumni directory'}
+        submitLabel={board ? 'Add to directory' : 'Add me'}
+        action={addAlum}
+      >
         <Field label="Full name" name="full_name" required />
         <Field label="Class year" name="class_year" type="number" placeholder="e.g. 2027" />
         <Field label="Major" name="major" />
@@ -31,8 +45,25 @@ export default async function AlumniPage() {
         <Field label="City" name="city" placeholder="e.g. Mexico City" />
         <Field label="LinkedIn" name="linkedin_url" placeholder="linkedin.com/in/…" />
         <Field label="Email to share" name="email" type="email" />
+        <ImageField label="Photo (optional)" name="photo_path" folder="alumni" />
       </AddPanel>
-      <AlumniDirectory alumni={(data ?? []) as Alum[]} />
+
+      {board && (
+        <AddPanel buttonLabel="Upload a spreadsheet (board)" title="Add many alumni at once" submitLabel="Upload" action={importAlumni}>
+          <div className="field wide" style={{ gap: 10 }}>
+            <p style={{ fontSize: 16, lineHeight: 1.6 }}>
+              1. Download the <a href="/alumni-template.csv" download>template</a> and fill one person per row
+              (only <b>full_name</b> is required).<br />
+              2. Save it as CSV: in Google Sheets, <i>File → Download → .csv</i>; in Excel, <i>Save As → CSV</i>.<br />
+              3. Upload it here. Photos can be added to each person afterwards by the board in the database.
+            </p>
+            <label htmlFor="csv" className="label">Spreadsheet (.csv)</label>
+            <input id="csv" name="file" type="file" accept=".csv,text/csv" className="input" required />
+          </div>
+        </AddPanel>
+      )}
+
+      <AlumniDirectory alumni={alumni} />
     </div>
   );
 }

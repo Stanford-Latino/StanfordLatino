@@ -52,6 +52,7 @@ export async function createEvent(_prev: FormState, f: FormData): Promise<FormSt
     starts_at: stanfordTimeToISO(when),
     location: text(f, 'location', 160),
     description: text(f, 'description', 600),
+    flyer_path: storedPath(f, 'flyer_path', 'flyers/'),
   });
   if (error) return { error: 'Couldn’t add the event. Try again.' };
   revalidatePath('/members/events');
@@ -80,8 +81,97 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
     city: text(f, 'city', 120),
     linkedin_url,
     email: text(f, 'email', 200),
+    photo_url: storedPath(f, 'photo_path', 'alumni/'),
   });
-  if (error) return { error: 'Couldn’t add you to the directory. Try again.' };
+  if (error) return { error: 'Couldn’t add this person to the directory. Try again.' };
   revalidatePath('/members/alumni');
-  return { ok: true, message: 'You’re in the directory.' };
+  return { ok: true, message: `${full_name} is in the directory.` };
+}
+
+/** Board only: add many alumni at once from a spreadsheet saved as CSV. */
+export async function importAlumni(_prev: FormState, f: FormData): Promise<FormState> {
+  const supabase = await memberClient();
+  if (!supabase) return { error: 'Please log in again.' };
+  const user = await getUser();
+  const { data: board } = await supabase.from('board_members').select('email').ilike('email', user?.email ?? '').maybeSingle();
+  if (!board) return { error: 'Only board members can upload a spreadsheet.' };
+
+  const file = f.get('file');
+  if (!(file instanceof File) || file.size === 0) return { error: 'Choose a CSV file.' };
+  if (file.size > 900_000) return { error: 'That file is too big. Split it into smaller files.' };
+
+  const rows = parseCSV(await file.text());
+  if (rows.length < 2) return { error: 'The file is empty.' };
+
+  const header = rows[0].map((h) => h.trim().toLowerCase().replace(/[^a-z]/g, ''));
+  const col = (...names: string[]) => header.findIndex((h) => names.includes(h));
+  const idx = {
+    full_name: col('fullname', 'name'),
+    class_year: col('classyear', 'year', 'class', 'graduationyear'),
+    major: col('major'),
+    role: col('role', 'title', 'currentrole', 'position'),
+    company: col('company', 'employer', 'organization'),
+    industry: col('industry'),
+    city: col('city', 'location'),
+    linkedin_url: col('linkedinurl', 'linkedin'),
+    email: col('email', 'emailaddress'),
+  };
+  if (idx.full_name < 0) return { error: 'The first row needs a “full_name” (or “Name”) column. Use the template.' };
+
+  const get = (r: string[], i: number, max = 200) => (i >= 0 ? (r[i] ?? '').trim().slice(0, max) || null : null);
+  const records = rows.slice(1)
+    .filter((r) => get(r, idx.full_name))
+    .slice(0, 1000)
+    .map((r) => {
+      const y = Number(get(r, idx.class_year, 4));
+      let li = get(r, idx.linkedin_url, 300);
+      if (li && !/^https?:\/\//i.test(li)) li = `https://${li}`;
+      return {
+        full_name: get(r, idx.full_name, 120)!,
+        class_year: Number.isInteger(y) && y > 1950 && y < 2100 ? y : null,
+        major: get(r, idx.major, 120),
+        role: get(r, idx.role, 120),
+        company: get(r, idx.company, 120),
+        industry: get(r, idx.industry, 80),
+        city: get(r, idx.city, 120),
+        linkedin_url: li,
+        email: get(r, idx.email),
+      };
+    });
+  if (!records.length) return { error: 'No rows with a name were found.' };
+
+  const { error } = await supabase.from('alumni').insert(records);
+  if (error) return { error: 'Couldn’t import the file. Check it matches the template and try again.' };
+  revalidatePath('/members/alumni');
+  return { ok: true, message: `Added ${records.length} ${records.length === 1 ? 'person' : 'people'} to the directory.` };
+}
+
+/** Only accept photo paths this site uploaded, in the expected folder. */
+function storedPath(f: FormData, key: string, folder: string) {
+  const p = String(f.get(key) ?? '').trim();
+  return p && p.startsWith(folder) && !p.includes('..') && p.length < 200 ? p : null;
+}
+
+/** Small CSV reader (handles quotes and commas inside quotes). */
+function parseCSV(input: string): string[][] {
+  const s = input.replace(/^﻿/, '');
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (quoted) {
+      if (c === '"' && s[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && s[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x.trim()));
 }

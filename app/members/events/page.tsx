@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import EventsCalendar, { type CalEvent } from './EventsCalendar';
 import AddPanel, { Field } from '@/components/AddPanel';
 import { createEvent } from '../actions';
+import ImageField from '@/components/ImageField';
+import { resolvePhoto, signPaths } from '@/lib/board';
 
 export const metadata: Metadata = { title: 'Events · Stanford Latino' };
 
@@ -10,8 +12,11 @@ export default async function EventsPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from('events')
-    .select('id, title, category, starts_at, location, description')
+    .select('id, title, category, starts_at, location, description, flyer_path')
     .order('starts_at');
+  const rows = (data ?? []) as (Omit<CalEvent, 'flyer_url'> & { flyer_path: string | null })[];
+  const signed = await signPaths(rows.map((r) => r.flyer_path));
+  const events: CalEvent[] = rows.map(({ flyer_path, ...e }) => ({ ...e, flyer_url: resolvePhoto(flyer_path, signed) }));
 
   return (
     <div className="page" style={{ maxWidth: 1180, gap: 28 }}>
@@ -29,9 +34,10 @@ export default async function EventsPage() {
         </Field>
         <Field label="Date and time" name="starts_at" type="datetime-local" required />
         <Field label="Location" name="location" placeholder="e.g. El Centro Chicano" />
+        <ImageField label="Flyer (optional)" name="flyer_path" folder="flyers" />
         <Field label="Description" name="description" type="textarea" wide />
       </AddPanel>
-      <EventsCalendar events={(data ?? []) as CalEvent[]} />
+      <EventsCalendar events={events} />
     </div>
   );
 }

@@ -34,11 +34,7 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
     <>
       <header className="site-header">
         <div className="header-inner">
-          <Link href="/" className="brand">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-circle.png" alt="" width={44} height={44} />
-            Stanford Latino
-          </Link>
+          <Link href="/" className="brand">Stanford Latino</Link>
           <nav className="nav" aria-label="Main" ref={navRef}>
             <Link href="/#board" className="nav-link" onClick={close}>Meet the Board</Link>
 

@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { initiatives } from '@/content/site';
 import Placeholder from '@/components/Placeholder';
+import { loadInitiative } from '@/lib/initiatives';
+import { isPresident } from '@/lib/board';
+import { EditIntro, PastEvents } from './Editors';
 
-export function generateStaticParams() {
-  return initiatives.map((it) => ({ slug: it.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function InitiativePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const it = initiatives.find((i) => i.slug === slug);
+  const [it, president] = await Promise.all([loadInitiative(slug), isPresident()]);
   if (!it) notFound();
 
   return (
@@ -44,26 +45,12 @@ export default async function InitiativePage({ params }: { params: Promise<{ slu
               ))}
             </div>
           )}
+          {president && <EditIntro slug={it.slug} body={it.body} photo={it.photo} />}
         </div>
       </div>
 
       <div style={{ borderTop: '1px solid var(--ink)', paddingTop: 36, display: 'flex', flexDirection: 'column', gap: 32 }}>
-        <h2 style={{ fontSize: 38 }}>Past Events</h2>
-        <div className="events-grid">
-          {it.events.map((ev, i) => (
-            <article key={i} className="event-card">
-              {ev.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="cover" src={ev.photo} alt="" />
-              ) : (
-                <Placeholder label="[Event photo]" />
-              )}
-              <p className="event-date">{ev.date}</p>
-              <h3>{ev.name}</h3>
-              <p style={{ fontSize: 16, lineHeight: 1.6 }}>{ev.description}</p>
-            </article>
-          ))}
-        </div>
+        <PastEvents slug={it.slug} events={it.liveEvents} president={president} />
       </div>
     </div>
   );

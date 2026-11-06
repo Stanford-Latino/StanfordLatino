@@ -7,9 +7,9 @@ import { shrinkImage } from '@/lib/shrinkImage';
 const MAX_MB = 15;
 
 /** Optional photo picker for a form. Uploads right away and hands the form a stored path. */
-export default function ImageField({ label, name, folder }: { label: string; name: string; folder: string }) {
+export default function ImageField({ label, name, folder, bucket = 'photos', initialPreview }: { label: string; name: string; folder: string; bucket?: string; initialPreview?: string | null }) {
   const [path, setPath] = useState('');
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(initialPreview ?? null);
   const [status, setStatus] = useState<string | null>(null);
   const id = `img-${name}`;
 
@@ -25,7 +25,7 @@ export default function ImageField({ label, name, folder }: { label: string; nam
     setPreview(URL.createObjectURL(file));
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
     const p = `${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await createClient().storage.from('photos').upload(p, file, { contentType: file.type });
+    const { error } = await createClient().storage.from(bucket).upload(p, file, { contentType: file.type });
     if (error) {
       setStatus('Upload failed. Try again.');
       setPath('');

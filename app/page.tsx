@@ -2,8 +2,12 @@ import Link from 'next/link';
 import { board, contact, initials, initiatives, welcome } from '@/content/site';
 import { PersonIcon } from '@/components/Icons';
 import Placeholder from '@/components/Placeholder';
+import { loadInitiativeCovers } from '@/lib/initiatives';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const covers = await loadInitiativeCovers();
   return (
     <>
       <section className="welcome">
@@ -58,9 +62,9 @@ export default function Home() {
         <div className="cards">
           {initiatives.map((it) => (
             <div key={it.slug} className="card">
-              {it.photo ? (
+              {covers.get(it.slug) ?? it.photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="cover" src={it.photo} alt="" />
+                <img className="cover" src={covers.get(it.slug) ?? it.photo} alt="" />
               ) : (
                 <Placeholder label={`[${it.title} photo]`} />
               )}

@@ -31,15 +31,6 @@ export const board: { label: string; size: number; members: Person[] }[] = [
     ],
   },
   {
-    label: 'Advisors',
-    size: 124,
-    members: [
-      { name: 'Andrea Knoepffler', role: 'Advisor, Filantropía' },
-      { name: 'Nicole Ocampo', role: 'Advisor, Comunidad' },
-      { name: 'Lucia Kazah', role: 'Advisor, Finances' },
-    ],
-  },
-  {
     label: 'Vice Presidents',
     size: 124,
     members: [

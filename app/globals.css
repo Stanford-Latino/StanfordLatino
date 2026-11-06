@@ -397,3 +397,15 @@ textarea.input { resize: vertical; font: inherit; }
 .dropzone.small { flex-direction: row; justify-content: flex-start; text-align: left; gap: 16px; padding: 16px 18px; min-height: 72px; }
 .drop-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(140, 21, 21, 0.12); border: 3px dashed var(--maroon); display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .drop-overlay span { background: #fff; padding: 16px 24px; font-family: var(--font-serif); font-size: 26px; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+
+/* Album photos: open large, click anywhere to close */
+.photo-tile { position: relative; }
+.photo-open { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.photo-delete, .photo-confirm button { background: rgba(255,255,255,.92); border: 0; padding: 6px 10px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink); }
+.photo-delete { position: absolute; top: 8px; right: 8px; opacity: 0; transition: opacity .15s; }
+.photo-tile:hover .photo-delete, .photo-delete:focus-visible { opacity: 1; }
+@media (hover: none) { .photo-delete { opacity: 1; } }
+.photo-confirm { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; }
+.photo-confirm button:first-child { background: var(--maroon); color: #fff; }
+.lightbox { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.9); display: flex; align-items: center; justify-content: center; padding: 24px; cursor: zoom-out; }
+.lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }

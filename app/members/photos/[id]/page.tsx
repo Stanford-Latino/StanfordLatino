@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import Uploader from './Uploader';
 import { isBoardMember, isPresident } from '@/lib/board';
 import AlbumControls from './AlbumControls';
+import PhotoGrid from './PhotoGrid';
 
 export const metadata: Metadata = { title: 'Album · Stanford Latino' };
 
@@ -27,6 +28,8 @@ export default async function AlbumPage({ params }: { params: Promise<{ id: stri
     ? await supabase.storage.from('photos').createSignedUrls(paths, 60 * 60)
     : { data: [] as { path: string | null; signedUrl: string }[] };
 
+  const signedMap = new Map((signed ?? []).map((x) => [x.path, x.signedUrl] as [string | null, string]));
+
   const dateLabel = album.event_date
     ? new Date(album.event_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : '';
@@ -45,17 +48,14 @@ export default async function AlbumPage({ params }: { params: Promise<{ id: stri
       {paths.length === 0 ? (
         <p className="notice">No photos yet.</p>
       ) : (
-        <div className="photo-grid">
-          {(signed ?? [])
-            .map((s) => s.signedUrl)
-            .filter((u): u is string => Boolean(u))
-            .map((url) => (
-              <a key={url} href={url} target="_blank" rel="noreferrer">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="square" src={url} alt={`${album.title} photo`} loading="lazy" />
-              </a>
-            ))}
-        </div>
+        <PhotoGrid
+          albumId={album.id}
+          title={album.title}
+          canDelete={president}
+          photos={(photos ?? [])
+            .map((p) => ({ id: p.id as string, url: signedMap.get(p.storage_path) ?? '' }))
+            .filter((p) => p.url)}
+        />
       )}
     </div>
   );

@@ -256,6 +256,19 @@ export async function removeBoardEmail(f: FormData) {
   revalidatePath('/members');
 }
 
+/** Presidents: delete one photo from an album. */
+export async function deletePhoto(id: string, albumId: string) {
+  const supabase = await presidentClient();
+  if (!supabase || !id) return { error: 'Only presidents can delete photos.' };
+  const { data } = await supabase.from('photos').select('storage_path').eq('id', id).maybeSingle();
+  const { error } = await supabase.from('photos').delete().eq('id', id);
+  if (error) return { error: 'Couldn’t delete the photo.' };
+  if (data?.storage_path) await supabase.storage.from('photos').remove([data.storage_path]);
+  revalidatePath(`/members/photos/${albumId}`);
+  revalidatePath('/members/photos');
+  return { ok: true };
+}
+
 /** Called after photos finish uploading to an album. */
 export async function photosAdded(albumId: string, count: number) {
   if (!(await isBoardMember()) || count < 1) return;

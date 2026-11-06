@@ -40,8 +40,8 @@ export default async function AlbumPage({ params }: { params: Promise<{ id: stri
           {board && <AlbumControls id={album.id} title={album.title} canDelete={president} />}
           <p style={{ fontSize: 16 }}>{[dateLabel, `${paths.length} ${paths.length === 1 ? 'photo' : 'photos'}`].filter(Boolean).join(' · ')}</p>
         </div>
-        {board && <Uploader albumId={album.id} />}
       </div>
+      {board && <Uploader albumId={album.id} />}
       {paths.length === 0 ? (
         <p className="notice">No photos yet.</p>
       ) : (

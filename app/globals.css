@@ -388,3 +388,12 @@ textarea.input { resize: vertical; font: inherit; }
 #board .member-role { font-size: 17px; margin-top: 2px; }
 @media (max-width: 900px) { #board .members { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; } #board .member-name { font-size: 22px; } }
 @media (max-width: 520px) { #board .members { gap: 32px 16px; } #board .member-name { font-size: 18px; white-space: normal; } #board .member-role { font-size: 14px; } }
+
+/* Drag and drop photos */
+.dropzone { width: 100%; border: 1.5px dashed #b9b9b9; background: #fafafa; padding: 28px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; cursor: pointer; color: var(--ink); }
+.dropzone b { font-family: var(--font-serif); font-size: 22px; font-weight: 500; }
+.dropzone span { font-size: 15px; color: #555; }
+.dropzone:hover, .dropzone.over, .dropzone:focus-visible { border-color: var(--maroon); background: #fbf4f4; }
+.dropzone.small { flex-direction: row; justify-content: flex-start; text-align: left; gap: 16px; padding: 16px 18px; min-height: 72px; }
+.drop-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(140, 21, 21, 0.12); border: 3px dashed var(--maroon); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.drop-overlay span { background: #fff; padding: 16px 24px; font-family: var(--font-serif); font-size: 26px; box-shadow: 0 10px 40px rgba(0,0,0,.2); }

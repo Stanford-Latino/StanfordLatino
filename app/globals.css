@@ -238,9 +238,66 @@ textarea.input { resize: vertical; font: inherit; }
 .member-tile span { font-weight: 700; }
 .member-tile:hover { background: var(--tint); }
 
+/* ── Phones & small tablets ─────────────── */
+.menu-btn { display: none; }
+.event-list { display: none; list-style: none; margin: 0; padding: 0; flex-direction: column; gap: 10px; }
+.event-list button { width: 100%; text-align: left; background: #fff; border: 1px solid var(--line-2); border-left: 6px solid var(--maroon); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; color: var(--ink); }
+.event-list .when { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.event-list .what { font-family: var(--font-serif), Georgia, serif; font-size: 20px; font-weight: 600; }
+.event-list .cat { font-size: 15px; }
+
+@media (max-width: 900px) {
+  .header-inner { flex-wrap: nowrap; padding: 8px 16px; }
+  .menu-btn { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: none; border: 0; color: #fff; cursor: pointer; flex: none; }
+  .nav {
+    display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 60;
+    background: var(--maroon); box-shadow: 0 16px 32px rgba(40, 0, 0, 0.3);
+    flex-direction: column; align-items: stretch; gap: 0; padding: 4px 20px 20px;
+    max-height: calc(100vh - 64px); overflow-y: auto;
+  }
+  .nav.open { display: flex; }
+  .nav-link { width: 100%; justify-content: space-between; font-size: 20px; padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .nav-link.active { border-bottom-color: rgba(255, 255, 255, 0.2); text-decoration: underline; text-underline-offset: 6px; }
+  .dropdown-panel, .dropdown-panel.right { position: static; width: 100%; box-shadow: none; background: transparent; padding: 0 0 8px 16px; }
+  .dropdown-item { font-size: 18px; font-weight: 500; min-height: 44px; padding: 10px 0; }
+  .subnav { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding: 0 12px; }
+  .subnav a, .subnav button { white-space: nowrap; }
+}
+
 @media (max-width: 640px) {
-  .page-title { font-size: 44px; }
-  .section h2, .split h1 { font-size: 38px; }
-  .welcome-text h1 { font-size: 36px; }
   .brand { font-size: 22px; }
+  .page { padding: 40px 18px 64px; gap: 32px; }
+  .page-title, .page-title[style] { font-size: 40px !important; }
+  .lede, .lede[style] { font-size: 17px !important; }
+  .section { padding: 48px 18px 56px; gap: 32px; }
+  .section h2, .split h1 { font-size: 34px; }
+  .welcome { padding: 48px 18px; }
+  .welcome-inner { gap: 32px; }
+  .welcome-text h1 { font-size: 32px; }
+  .body-lg { font-size: 17px; }
+  .logo { transform: scale(0.8); transform-origin: top center; margin-bottom: -72px; }
+  .members { gap: 24px 12px; }
+  .member { width: 140px; }
+  .avatar { max-width: 128px; max-height: 128px; }
+  .cards { grid-template-columns: 1fr; gap: 40px; }
+  .contact { padding: 56px 18px; }
+  .contact h2 { font-size: 34px; }
+  .contact a.email { font-size: 18px; word-break: break-all; }
+  .about-row h2 { font-size: 30px; }
+  .album-head h1 { font-size: 36px; }
+  .login-card { padding: 28px 20px; }
+  .login-card h1 { font-size: 32px; }
+  .add-form { padding: 20px 16px; }
+  .alum-banner { padding: 22px 44px 22px 20px; font-size: 16px; }
+  .alumni-grid.list .alum { flex-direction: column; }
+  .filters { max-width: none; }
+  .dir { gap: 28px; }
+  .job { gap: 14px; }
+  .job .mark { width: 48px; height: 48px; font-size: 22px; }
+  .job h3 { font-size: 20px; }
+  .event-detail { padding: 18px; }
+  .cal-nav h2 { font-size: 24px; min-width: 0; }
+  .cal-scroll { display: none; }
+  .event-list { display: flex; }
+  .member-tile { min-height: 0; }
 }

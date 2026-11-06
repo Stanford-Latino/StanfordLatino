@@ -11,9 +11,10 @@ type Menu = 'initiatives' | 'about' | 'login' | null;
 export default function Header({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState<Menu>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
 
-  useEffect(() => setOpen(null), [pathname]);
+  useEffect(() => { setOpen(null); setMobileOpen(false); }, [pathname]);
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) setOpen(null);
@@ -28,14 +29,19 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
   }, []);
 
   const toggle = (m: Menu) => setOpen((cur) => (cur === m ? null : m));
-  const close = () => setOpen(null);
+  const close = () => { setOpen(null); setMobileOpen(false); };
 
   return (
     <>
       <header className="site-header">
         <div className="header-inner">
-          <Link href="/" className="brand">Stanford Latino</Link>
-          <nav className="nav" aria-label="Main" ref={navRef}>
+          <Link href="/" className="brand" onClick={close}>Stanford Latino</Link>
+          <button className="menu-btn" aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen} onClick={() => setMobileOpen((o) => !o)}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              {mobileOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+          <nav className={`nav${mobileOpen ? ' open' : ''}`} aria-label="Main" ref={navRef}>
             <Link href="/#board" className="nav-link" onClick={close}>Meet the Board</Link>
 
             <div className="dropdown">
@@ -45,7 +51,7 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
               {open === 'initiatives' && (
                 <div className="dropdown-panel">
                   {initiatives.map((it) => (
-                    <Link key={it.slug} href={`/initiatives/${it.slug}`} className="dropdown-item">{it.title}</Link>
+                    <Link key={it.slug} href={`/initiatives/${it.slug}`} className="dropdown-item" onClick={close}>{it.title}</Link>
                   ))}
                 </div>
               )}
@@ -57,8 +63,8 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
               </button>
               {open === 'about' && (
                 <div className="dropdown-panel">
-                  <Link href="/about#serve" className="dropdown-item">Who We Serve</Link>
-                  <Link href="/about#join" className="dropdown-item">How to Join</Link>
+                  <Link href="/about#serve" className="dropdown-item" onClick={close}>Who We Serve</Link>
+                  <Link href="/about#join" className="dropdown-item" onClick={close}>How to Join</Link>
                 </div>
               )}
             </div>
@@ -72,7 +78,7 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
               {open === 'login' && (
                 <div className="dropdown-panel right">
                   {memberPages.map((p) => (
-                    <Link key={p.href} href={p.href} className="dropdown-item">
+                    <Link key={p.href} href={p.href} className="dropdown-item" onClick={close}>
                       {p.label} {signedIn ? <Arrow /> : <Lock />}
                     </Link>
                   ))}

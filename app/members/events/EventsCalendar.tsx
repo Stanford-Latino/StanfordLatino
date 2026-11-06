@@ -96,6 +96,21 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
         </div>
       </div>
 
+      <ul className="event-list">
+        {inMonth.length === 0 && events.length > 0 && <li className="notice">Nothing this month.</li>}
+        {[...inMonth]
+          .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+          .map((e) => (
+            <li key={e.id}>
+              <button onClick={() => setSelId(e.id)} style={{ borderLeftColor: cat(e.category).dot }}>
+                <span className="when">{time(e.starts_at)}</span>
+                <span className="what">{e.title}</span>
+                <span className="cat">{cat(e.category).label}{e.location ? ` · ${e.location}` : ''}</span>
+              </button>
+            </li>
+          ))}
+      </ul>
+
       {sel && (
         <div className="event-detail" style={{ background: cat(sel.category).bg }}>
           {sel.flyer_url && (

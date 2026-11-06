@@ -182,8 +182,9 @@ export async function reviewAlum(f: FormData) {
   const supabase = await boardClient();
   const id = String(f.get('id') ?? '');
   if (!supabase || !id) return;
-  if (f.get('decision') === 'approve') await supabase.from('alumni').update({ status: 'approved' }).eq('id', id);
-  else await supabase.from('alumni').delete().eq('id', id).eq('status', 'pending');
+  const decision = f.get('decision');
+  if (decision === 'approve') await supabase.from('alumni').update({ status: 'approved' }).eq('id', id);
+  else if (decision === 'reject') await supabase.from('alumni').delete().eq('id', id).eq('status', 'pending');
   revalidatePath('/members/alumni');
 }
 

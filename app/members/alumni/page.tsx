@@ -43,11 +43,18 @@ export default async function AlumniPage() {
                 {[p.role, p.company, p.city].filter(Boolean).join(' · ')}
                 {p.linkedin_url && <> · <a href={p.linkedin_url} target="_blank" rel="noreferrer">LinkedIn</a></>}
               </div>
-              <form action={reviewAlum} style={{ display: 'flex', gap: 10 }}>
-                <input type="hidden" name="id" value={p.id} />
-                <button className="btn" name="decision" value="approve">Approve</button>
-                <button className="btn btn-outline" name="decision" value="reject">Decline</button>
-              </form>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <form action={reviewAlum}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input type="hidden" name="decision" value="approve" />
+                  <button className="btn">Approve</button>
+                </form>
+                <form action={reviewAlum}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input type="hidden" name="decision" value="reject" />
+                  <button className="btn btn-outline">Decline</button>
+                </form>
+              </div>
             </div>
           ))}
         </section>

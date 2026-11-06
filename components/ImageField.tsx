@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { shrinkImage } from '@/lib/shrinkImage';
 
 const MAX_MB = 15;
 
@@ -13,9 +14,10 @@ export default function ImageField({ label, name, folder }: { label: string; nam
   const id = `img-${name}`;
 
   async function onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/') || file.size > MAX_MB * 1024 * 1024) {
+    const picked = e.target.files?.[0];
+    if (!picked) return;
+    const file = await shrinkImage(picked);
+    if (!file.type.startsWith('image/') || picked.size > MAX_MB * 1024 * 1024) {
       setStatus(`Please choose an image under ${MAX_MB} MB.`);
       return;
     }

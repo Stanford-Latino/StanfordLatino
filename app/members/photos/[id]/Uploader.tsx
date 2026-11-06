@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { shrinkImage } from '@/lib/shrinkImage';
 import { Plus } from '@/components/Icons';
 
 const MAX_MB = 15;
@@ -21,8 +22,9 @@ export default function Uploader({ albumId }: { albumId: string }) {
     const supabase = createClient();
     let done = 0;
     let failed = 0;
-    for (const file of files) {
-      if (!file.type.startsWith('image/') || file.size > MAX_MB * 1024 * 1024) { failed++; continue; }
+    for (const original of files) {
+      if (!original.type.startsWith('image/') || original.size > MAX_MB * 1024 * 1024) { failed++; continue; }
+      const file = await shrinkImage(original);
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
       const path = `${albumId}/${crypto.randomUUID()}.${ext}`;
       const up = await supabase.storage.from('photos').upload(path, file, { contentType: file.type });

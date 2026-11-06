@@ -28,7 +28,14 @@ export async function sendLoginLink(_prev: LoginState, formData: FormData): Prom
     options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}` },
   });
 
-  if (error) return { error: 'We couldn’t send the email. Try again in a minute.' };
+  if (error) {
+    const limited = error.status === 429 || /rate|limit/i.test(error.message);
+    return {
+      error: limited
+        ? 'Too many login emails were sent in the last hour. Please try again later.'
+        : 'We couldn’t send the email. Try again in a minute.',
+    };
+  }
   return { sentTo: email };
 }
 

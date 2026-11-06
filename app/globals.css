@@ -151,6 +151,7 @@ main { min-height: 60vh; }
 .login-card { width: 100%; max-width: 440px; margin: 0 auto; border: 1px solid var(--line-2); padding: 40px 36px; display: flex; flex-direction: column; gap: 16px; }
 .login-card h1 { font-size: 38px; }
 .error { color: #a01818; font-size: 15px; }
+.text-btn { align-self: flex-start; background: none; border: 0; padding: 8px 0; min-height: 44px; font-size: 15px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; color: var(--ink); text-align: left; }
 
 /* ── Members: jobs ──────────────────────── */
 .job { border-bottom: 1px solid var(--line-2); padding: 22px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }

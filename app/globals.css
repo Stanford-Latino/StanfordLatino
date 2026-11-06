@@ -8,7 +8,7 @@
   --tint: #faf7f7;
   --placeholder: #a89898;
   --font-serif: 'Playfair Display';
-  --font-sans: 'Source Serif 4';
+  --font-sans: 'Playfair Display';
 }
 
 * { box-sizing: border-box; }
@@ -211,6 +211,14 @@ main { min-height: 60vh; }
 .album-head h1 { font-size: 52px; line-height: 1.05; }
 .upload { position: relative; }
 .upload input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+
+/* ── Members home ───────────────────────── */
+.member-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.member-tile { border: 1px solid var(--ink); padding: 32px 28px; display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: var(--ink); min-height: 220px; }
+.member-tile h2 { font-size: 30px; }
+.member-tile p { font-size: 17px; line-height: 1.5; flex: 1; }
+.member-tile span { font-weight: 700; }
+.member-tile:hover { background: var(--tint); }
 
 @media (max-width: 640px) {
   .page-title { font-size: 44px; }

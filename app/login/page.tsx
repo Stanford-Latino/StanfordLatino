@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import LoginForm from './LoginForm';
+import { safePath } from '@/lib/auth';
 
 export const metadata: Metadata = { title: 'Login · Stanford Latino' };
 
@@ -13,7 +14,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next, error } = await searchParams;
   return (
     <div className="page" style={{ paddingTop: 88 }}>
-      <LoginForm next={next && next.startsWith('/members') ? next : '/members/alumni'} initialError={error ? ERRORS[error] : undefined} />
+      <LoginForm next={safePath(next)} initialError={error ? ERRORS[error] : undefined} />
     </div>
   );
 }

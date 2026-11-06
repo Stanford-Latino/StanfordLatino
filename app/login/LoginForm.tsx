@@ -11,7 +11,7 @@ export default function LoginForm({ next, initialError }: { next: string; initia
       <div className="login-card">
         <h1>Check your email</h1>
         <p style={{ fontSize: 16, lineHeight: 1.6 }}>
-          We sent a login link to <b>{state.sentTo}</b>. Open it on this device to get into the members area.
+          We sent a login link to <b>{state.sentTo}</b>. Open it on this device and you’ll be back on the site with the Alumni Directory, Events, Jobs and Photos unlocked.
         </p>
       </div>
     );

@@ -156,10 +156,10 @@ export const about = {
 };
 
 export const memberPages = [
-  { href: '/members/alumni', label: 'Alumni Directory' },
-  { href: '/members/events', label: 'Events' },
-  { href: '/members/jobs', label: 'Jobs' },
-  { href: '/members/photos', label: 'Photos' },
+  { href: '/members/alumni', label: 'Alumni Directory', description: 'Find alumni for coffee chats, referrals and mentoring.' },
+  { href: '/members/events', label: 'Events', description: 'Everything coming up, color coded.' },
+  { href: '/members/jobs', label: 'Jobs', description: 'Open roles from the companies we work with.' },
+  { href: '/members/photos', label: 'Photos', description: 'Albums from every event — add yours.' },
 ];
 
 export function initials(name: string) {

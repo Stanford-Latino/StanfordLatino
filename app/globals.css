@@ -302,3 +302,10 @@ textarea.input { resize: vertical; font: inherit; }
   .event-list { display: flex; }
   .member-tile { min-height: 0; }
 }
+
+/* Login: choose Board Member or Student / Alumni */
+.login-choice { width: 100%; max-width: 520px; margin: 40px auto; display: flex; flex-direction: column; align-items: stretch; }
+.login-choice button { background: none; border: 0; cursor: pointer; font-family: var(--font-serif); font-size: 44px; font-weight: 500; color: var(--ink); padding: 36px 0; text-align: center; }
+.login-choice button:hover, .login-choice button:focus-visible { color: var(--maroon); }
+.login-choice hr { border: 0; border-top: 1px solid var(--line-2, #ccc); margin: 0; }
+@media (max-width: 640px) { .login-choice button { font-size: 34px; padding: 28px 0; } }

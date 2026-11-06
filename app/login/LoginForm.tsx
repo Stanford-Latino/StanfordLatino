@@ -6,6 +6,7 @@ import { sendLoginLink, type LoginState } from './actions';
 export default function LoginForm({ next, initialError }: { next: string; initialError?: string }) {
   const [sendState, sendAction, sending] = useActionState<LoginState, FormData>(sendLoginLink, { error: initialError });
   const [restart, setRestart] = useState(false);
+  const [who, setWho] = useState<'board' | 'member' | null>(initialError ? 'member' : null);
   useEffect(() => { setRestart(false); }, [sendState]);
 
   const sentTo = !restart && sendState.sentTo;
@@ -30,15 +31,28 @@ export default function LoginForm({ next, initialError }: { next: string; initia
     );
   }
 
+  if (!who) {
+    return (
+      <div className="login-choice">
+        <button type="button" onClick={() => setWho('board')}>Board Member</button>
+        <hr />
+        <button type="button" onClick={() => setWho('member')}>Student / Alumni</button>
+      </div>
+    );
+  }
+
   return (
     <form action={sendAction} className="login-card">
-      <h1>Login</h1>
-      <p style={{ fontSize: 16, lineHeight: 1.5 }}>Use your Stanford student/alumni email.</p>
+      <h1>{who === 'board' ? 'Board login' : 'Login'}</h1>
+      <p style={{ fontSize: 16, lineHeight: 1.5 }}>
+        {who === 'board' ? 'Use the Stanford email the board added.' : 'Use your Stanford student/alumni email.'}
+      </p>
       <label htmlFor="email" className="label">Stanford email</label>
       <input id="email" name="email" type="email" className="input" placeholder="you@stanford.edu" autoComplete="email" autoCapitalize="none" required />
       <input type="hidden" name="next" value={next} />
       {sendState.error && <p role="alert" className="error">{sendState.error}</p>}
       <button className="btn" disabled={sending} style={{ marginTop: 8 }}>{sending ? 'Sending…' : 'Email me a login link'}</button>
+      <button type="button" className="text-btn" onClick={() => setWho(null)}>← Back</button>
     </form>
   );
 }

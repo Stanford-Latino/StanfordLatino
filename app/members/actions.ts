@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createClient, getUser } from '@/lib/supabase/server';
 import { isAllowedEmail } from '@/lib/auth';
 import { isBoardMember, isPresident } from '@/lib/board';
@@ -175,6 +176,34 @@ export async function importAlumni(_prev: FormState, f: FormData): Promise<FormS
   if (error) return { error: 'Couldn’t import the file. Check it matches the template and try again.' };
   revalidatePath('/members/alumni');
   return { ok: true, message: `Added ${records.length} ${records.length === 1 ? 'person' : 'people'} to the directory.` };
+}
+
+/** Board: rename an album. */
+export async function renameAlbum(_prev: FormState, f: FormData): Promise<FormState> {
+  const supabase = await boardClient();
+  if (!supabase) return { error: 'Only board members can rename albums.' };
+  const id = String(f.get('id') ?? '');
+  const title = text(f, 'title', 120);
+  if (!id || !title) return { error: 'Give the album a name.' };
+  const { error } = await supabase.from('albums').update({ title }).eq('id', id);
+  if (error) return { error: 'Couldn’t rename the album. Try again.' };
+  revalidatePath('/members/photos');
+  revalidatePath(`/members/photos/${id}`);
+  return { ok: true };
+}
+
+/** Presidents: delete an album and its photos. */
+export async function deleteAlbum(f: FormData) {
+  const supabase = await presidentClient();
+  const id = String(f.get('id') ?? '');
+  if (!supabase || !id) return;
+  const { data: photos } = await supabase.from('photos').select('storage_path').eq('album_id', id);
+  const { error } = await supabase.from('albums').delete().eq('id', id);
+  if (error) return;
+  const paths = (photos ?? []).map((p) => p.storage_path);
+  if (paths.length) await supabase.storage.from('photos').remove(paths);
+  revalidatePath('/members/photos');
+  redirect('/members/photos');
 }
 
 /** Board: approve or turn down an alumni request. */

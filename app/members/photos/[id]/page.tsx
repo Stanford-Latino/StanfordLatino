@@ -3,14 +3,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Uploader from './Uploader';
-import { isBoardMember } from '@/lib/board';
+import { isBoardMember, isPresident } from '@/lib/board';
+import AlbumControls from './AlbumControls';
 
 export const metadata: Metadata = { title: 'Album · Stanford Latino' };
 
 export default async function AlbumPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const board = await isBoardMember();
+  const [board, president] = await Promise.all([isBoardMember(), isPresident()]);
 
   const { data: album } = await supabase.from('albums').select('id, title, event_date').eq('id', id).maybeSingle();
   if (!album) notFound();
@@ -36,6 +37,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ id: stri
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <Link href="/members/photos" style={{ padding: '8px 0', fontSize: 15 }}>← All albums</Link>
           <h1>{album.title}</h1>
+          {board && <AlbumControls id={album.id} title={album.title} canDelete={president} />}
           <p style={{ fontSize: 16 }}>{[dateLabel, `${paths.length} ${paths.length === 1 ? 'photo' : 'photos'}`].filter(Boolean).join(' · ')}</p>
         </div>
         {board && <Uploader albumId={album.id} />}

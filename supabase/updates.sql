@@ -182,3 +182,8 @@ drop policy if exists "presidents remove board" on public.board_members;
 create policy "presidents add board" on public.board_members for insert to authenticated with check (public.is_president());
 create policy "presidents edit board" on public.board_members for update to authenticated using (public.is_president());
 create policy "presidents remove board" on public.board_members for delete to authenticated using (public.is_president());
+-- Board members can rename albums; only presidents can delete them.
+-- Run once in the SQL Editor. Safe to run more than once.
+drop policy if exists "board deletes" on public.albums;
+drop policy if exists "presidents delete albums" on public.albums;
+create policy "presidents delete albums" on public.albums for delete to authenticated using (public.is_president());

@@ -15,6 +15,7 @@ import '@fontsource/playfair-display/700.css';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.stanfordlatinos.com'),
   title: 'Stanford Latino',
   description:
     'Stanford Latino is a student-led undergraduate organization bringing together the Latino community at Stanford.',

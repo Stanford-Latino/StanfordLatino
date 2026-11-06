@@ -77,6 +77,9 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
               </button>
               {open === 'login' && (
                 <div className="dropdown-panel right">
+                  {signedIn && (
+                    <Link href="/members" className="dropdown-item" onClick={close}>Members home <Arrow /></Link>
+                  )}
                   {memberPages.map((p) => (
                     <Link key={p.href} href={p.href} className="dropdown-item" onClick={close}>
                       {p.label} {signedIn ? <Arrow /> : <Lock />}
@@ -100,6 +103,7 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
       </header>
       {signedIn && pathname.startsWith('/members') && (
         <nav className="subnav" aria-label="Members">
+          <Link href="/members" className={pathname === '/members' ? 'active' : ''}>Members home</Link>
           {memberPages.map((p) => (
             <Link key={p.href} href={p.href} className={pathname.startsWith(p.href) ? 'active' : ''}>{p.label}</Link>
           ))}

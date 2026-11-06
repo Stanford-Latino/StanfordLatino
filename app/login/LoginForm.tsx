@@ -49,7 +49,7 @@ export default function LoginForm({ next, initialError }: { next: string; initia
       </p>
       <label htmlFor="email" className="label">Stanford email</label>
       <input id="email" name="email" type="email" className="input" placeholder="you@stanford.edu" autoComplete="email" autoCapitalize="none" required />
-      <input type="hidden" name="next" value={next} />
+      <input type="hidden" name="next" value={who === 'board' ? `/members?board=1` : next} />
       {sendState.error && <p role="alert" className="error">{sendState.error}</p>}
       <button className="btn" disabled={sending} style={{ marginTop: 8 }}>{sending ? 'Sending…' : 'Email me a login link'}</button>
       <button type="button" className="text-btn" onClick={() => setWho(null)}>← Back</button>

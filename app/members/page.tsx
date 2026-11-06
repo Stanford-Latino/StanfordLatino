@@ -8,7 +8,8 @@ import { addBoardEmail, removeBoardEmail } from './actions';
 
 export const metadata: Metadata = { title: 'Members · Stanford Latino' };
 
-export default async function MembersHome() {
+export default async function MembersHome({ searchParams }: { searchParams: Promise<{ board?: string }> }) {
+  const { board: triedBoard } = await searchParams;
   const [board, president] = await Promise.all([isBoardMember(), isPresident()]);
   let boardList: { email: string; name: string | null; role: string }[] = [];
   let me = '';
@@ -22,6 +23,12 @@ export default async function MembersHome() {
   return (
     <div className="page" style={{ maxWidth: 1040 }}>
       <h1 className="page-title" style={{ textAlign: 'center' }}>Members</h1>
+
+      {triedBoard && !board && (
+        <p className="notice" style={{ textAlign: 'center' }}>
+          You’re not on the board list, so you’re logged in as a member. Ask a president to add your email.
+        </p>
+      )}
 
       <nav className="member-index" aria-label="Members sections">
         {memberPages.map((p) => (

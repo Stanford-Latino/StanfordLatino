@@ -34,6 +34,7 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
   const now = new Date();
   const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() });
   const [selId, setSelId] = useState<string | null>(null);
+  const [moreDay, setMoreDay] = useState<number | null>(null);
 
   const first = new Date(ym.y, ym.m, 1).getDay();
   const dim = new Date(ym.y, ym.m + 1, 0).getDate();
@@ -49,11 +50,11 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
     setSelId(null);
   };
   useEffect(() => {
-    if (!selId) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelId(null); };
+    if (!selId && moreDay === null) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setSelId(null); setMoreDay(null); } };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selId]);
+  }, [selId, moreDay]);
   const time = (iso: string) =>
     new Date(iso).toLocaleString('en-US', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
@@ -67,7 +68,7 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
         </div>
         <div className="legend">
           {Object.values(CATS).map((c) => (
-            <span key={c.label} style={{ background: c.bg }}><i className="dot" style={{ background: c.dot }} />{c.label}</span>
+            <span key={c.label}><i className="bar" style={{ background: c.dot }} />{c.label}</span>
           ))}
         </div>
       </div>
@@ -84,17 +85,19 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
               return (
                 <div key={i} className={`cal-cell${valid ? '' : ' out'}`}>
                   {valid && <span className={`cal-num${isToday ? ' today' : ''}`}>{day}</span>}
-                  {todays.map((e) => (
+                  {todays.slice(0, todays.length > 4 ? 3 : 4).map((e) => (
                     <button
                       key={e.id}
-                      className="cal-event"
+                      className={`cal-event${selId === e.id ? ' sel' : ''}`}
                       onClick={() => setSelId(e.id)}
-                      style={{ background: cat(e.category).bg, outline: selId === e.id ? `2px solid ${cat(e.category).dot}` : 'none' }}
                     >
-                      <i className="dot" style={{ width: 8, height: 8, background: cat(e.category).dot }} />
-                      {e.title}
+                      <i className="bar" style={{ background: cat(e.category).dot }} />
+                      <span>{e.title}</span>
                     </button>
                   ))}
+                  {todays.length > 4 && (
+                    <button className="cal-more" onClick={() => setMoreDay(day)}>+{todays.length - 3} more</button>
+                  )}
                 </div>
               );
             })}
@@ -108,7 +111,8 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
           .map((e) => (
             <li key={e.id}>
-              <button onClick={() => setSelId(e.id)} style={{ borderLeftColor: cat(e.category).dot }}>
+              <button onClick={() => setSelId(e.id)}>
+                <i className="bar tall" style={{ background: cat(e.category).dot }} />
                 <span className="when">{time(e.starts_at)}</span>
                 <span className="what">{e.title}</span>
                 <span className="cat">{cat(e.category).label}{e.location ? ` · ${e.location}` : ''}</span>
@@ -117,19 +121,36 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
           ))}
       </ul>
 
+      {moreDay !== null && !sel && (
+        <div className="event-overlay" onClick={() => setMoreDay(null)}>
+          <div className="event-pop" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <button className="event-pop-close" aria-label="Close" onClick={() => setMoreDay(null)}>×</button>
+            <h3>{MONTHS[ym.m]} {moreDay}</h3>
+            {inMonth
+              .filter((e) => partsInTZ(e.starts_at).d === moreDay)
+              .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+              .map((e) => (
+                <button key={e.id} className="cal-event" style={{ fontSize: 17 }} onClick={() => setSelId(e.id)}>
+                  <i className="bar" style={{ background: cat(e.category).dot }} />
+                  <span>{e.title}</span>
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
+
       {sel && (
-        <div className="event-overlay" onClick={() => setSelId(null)}>
+        <div className="event-overlay" onClick={() => { setSelId(null); setMoreDay(null); }}>
           <div
             className="event-pop"
             role="dialog"
             aria-modal="true"
             aria-label={sel.title}
             onClick={(e) => e.stopPropagation()}
-            style={{ borderTop: `6px solid ${cat(sel.category).dot}` }}
           >
             <button className="event-pop-close" aria-label="Close" onClick={() => setSelId(null)}>×</button>
             <p className="event-pop-meta">
-              <i className="dot" style={{ background: cat(sel.category).dot }} />
+              <i className="bar" style={{ background: cat(sel.category).dot }} />
               {cat(sel.category).label}
             </p>
             <h3>{sel.title}</h3>

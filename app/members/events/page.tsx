@@ -23,7 +23,6 @@ export default async function EventsPage() {
     <div className="page" style={{ maxWidth: 1180, gap: 28 }}>
       <div className="page-head">
         <h1 className="page-title">Events</h1>
-        <p className="lede">Everything Stanford Latino, color coded.</p>
       </div>
       {board && <AddPanel buttonLabel="Add event" title="Add an event" submitLabel="Add to calendar" action={createEvent}>
         <Field label="Event name" name="title" required placeholder="e.g. Friday Social" />

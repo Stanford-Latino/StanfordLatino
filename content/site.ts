@@ -148,7 +148,7 @@ export const about = {
 
 export const memberPages = [
   { href: '/members/alumni', label: 'Alumni Directory', description: 'Find alumni for coffee chats, referrals and mentoring.' },
-  { href: '/members/events', label: 'Events', description: 'Everything coming up, color coded.' },
+  { href: '/members/events', label: 'Events', description: 'The club calendar.' },
   { href: '/members/jobs', label: 'Jobs', description: 'Open roles from the companies we work with.' },
   { href: '/members/photos', label: 'Photos', description: 'Albums from every event.' },
 ];

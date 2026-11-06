@@ -330,3 +330,6 @@ textarea.input { resize: vertical; font: inherit; }
   .member-index .desc { grid-column: 1; font-size: 16px; }
   .member-index .arrow { grid-row: 1; grid-column: 2; }
 }
+
+.board-row { display: grid; grid-template-columns: 220px 1fr 120px; gap: 24px; flex: 1; align-items: baseline; }
+@media (max-width: 640px) { .board-row { grid-template-columns: 1fr; gap: 2px; } }

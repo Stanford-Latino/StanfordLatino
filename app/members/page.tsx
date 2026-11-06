@@ -44,10 +44,10 @@ export default async function MembersHome() {
           <ul>
             {boardList.map((b) => (
               <li key={b.email}>
-                <span>
+                <span className="board-row">
                   <b>{b.name || b.email}</b>
-                  {b.name && <span className="muted"> · {b.email}</span>}
-                  {b.role === 'president' && <span className="muted"> · President</span>}
+                  <span className="muted">{b.name ? b.email : ''}</span>
+                  <span className="muted">{b.role === 'president' ? 'President' : 'Board'}</span>
                 </span>
                 {president && b.email.toLowerCase() !== me && (
                   <form action={removeBoardEmail}>

@@ -333,3 +333,7 @@ textarea.input { resize: vertical; font: inherit; }
 
 .board-row { display: grid; grid-template-columns: 220px 1fr 120px; gap: 24px; flex: 1; align-items: baseline; }
 @media (max-width: 640px) { .board-row { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Alumni photos are round so LinkedIn headshots look right */
+.alum .letter { border-radius: 50%; }
+.alum .letter img { object-position: center 30%; }

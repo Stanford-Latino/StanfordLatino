@@ -42,7 +42,7 @@ export default function ImageField({ label, name, folder }: { label: string; nam
       <input type="hidden" name={name} value={path} />
       {preview && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt="" style={{ width: 120, height: 120, objectFit: 'cover', marginTop: 6 }} />
+        <img src={preview} alt="" style={{ width: 120, height: 120, objectFit: 'cover', marginTop: 6, borderRadius: folder === 'alumni' ? '50%' : 0 }} />
       )}
       {status && <p style={{ fontSize: 14 }}>{status}</p>}
     </div>

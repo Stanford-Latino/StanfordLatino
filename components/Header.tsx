@@ -89,7 +89,7 @@ export default function Header({ signedIn }: { signedIn: boolean }) {
                   ) : (
                     <>
                       <p className="dropdown-note">Use your student/alumni login.</p>
-                      <Link href={`/login?next=${encodeURIComponent(pathname)}`} className="dropdown-cta">Log in</Link>
+                      <Link href="/login?next=/members" className="dropdown-cta">Log in</Link>
                     </>
                   )}
                 </div>

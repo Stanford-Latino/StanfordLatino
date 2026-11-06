@@ -3,12 +3,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Uploader from './Uploader';
+import { isBoardMember } from '@/lib/board';
 
 export const metadata: Metadata = { title: 'Album · Stanford Latino' };
 
 export default async function AlbumPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const board = await isBoardMember();
 
   const { data: album } = await supabase.from('albums').select('id, title, event_date').eq('id', id).maybeSingle();
   if (!album) notFound();
@@ -36,10 +38,10 @@ export default async function AlbumPage({ params }: { params: Promise<{ id: stri
           <h1>{album.title}</h1>
           <p style={{ fontSize: 16 }}>{[dateLabel, `${paths.length} ${paths.length === 1 ? 'photo' : 'photos'}`].filter(Boolean).join(' · ')}</p>
         </div>
-        <Uploader albumId={album.id} />
+        {board && <Uploader albumId={album.id} />}
       </div>
       {paths.length === 0 ? (
-        <p className="notice">No photos yet. Be the first to add some.</p>
+        <p className="notice">No photos yet.</p>
       ) : (
         <div className="photo-grid">
           {(signed ?? [])

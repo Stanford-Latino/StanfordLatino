@@ -5,8 +5,8 @@ export async function isBoardMember() {
   const user = await getUser();
   if (!user?.email) return false;
   const supabase = await createClient();
-  const { data } = await supabase.from('board_members').select('email').ilike('email', user.email).maybeSingle();
-  return Boolean(data);
+  const { data } = await supabase.rpc('is_board');
+  return data === true;
 }
 
 /** Photos are stored privately; this turns stored paths into temporary links. */

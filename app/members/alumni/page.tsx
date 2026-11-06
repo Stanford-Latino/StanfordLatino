@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import AlumniDirectory, { type Alum } from './AlumniDirectory';
 import AddPanel, { Field } from '@/components/AddPanel';
 import ImageField from '@/components/ImageField';
-import { addAlum, importAlumni } from '../actions';
+import { addAlum, importAlumni, reviewAlum } from '../actions';
 import { isBoardMember, resolvePhoto, signPaths } from '@/lib/board';
 
 export const metadata: Metadata = { title: 'Alumni Directory · Stanford Latino' };
@@ -13,13 +13,15 @@ export default async function AlumniPage() {
   const [{ data }, board] = await Promise.all([
     supabase
       .from('alumni')
-      .select('id, full_name, class_year, major, role, company, industry, city, linkedin_url, email, photo_url')
+      .select('id, full_name, class_year, major, role, company, industry, city, linkedin_url, email, photo_url, status')
       .order('full_name'),
     isBoardMember(),
   ]);
-  const rows = (data ?? []) as Alum[];
-  const signed = await signPaths(rows.map((r) => r.photo_url));
-  const alumni = rows.map((r) => ({ ...r, photo_url: resolvePhoto(r.photo_url, signed) }));
+  const all = (data ?? []) as (Alum & { status: string })[];
+  const signed = await signPaths(all.map((r) => r.photo_url));
+  const withPhotos = all.map((r) => ({ ...r, photo_url: resolvePhoto(r.photo_url, signed) }));
+  const alumni = withPhotos.filter((r) => r.status === 'approved');
+  const pending = board ? withPhotos.filter((r) => r.status === 'pending') : [];
 
   return (
     <div className="page" style={{ maxWidth: 1240 }}>
@@ -30,6 +32,27 @@ export default async function AlumniPage() {
         </p>
       </div>
 
+      {pending.length > 0 && (
+        <section className="notice" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <h2 style={{ fontSize: 24 }}>Requests to join the directory ({pending.length})</h2>
+          {pending.map((p) => (
+            <div key={p.id} style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--line-2)', paddingTop: 12 }}>
+              <div style={{ fontSize: 16, lineHeight: 1.5 }}>
+                <b>{p.full_name}</b>{p.class_year ? ` ’${String(p.class_year).slice(2)}` : ''}
+                <br />
+                {[p.role, p.company, p.city].filter(Boolean).join(' · ')}
+                {p.linkedin_url && <> · <a href={p.linkedin_url} target="_blank" rel="noreferrer">LinkedIn</a></>}
+              </div>
+              <form action={reviewAlum} style={{ display: 'flex', gap: 10 }}>
+                <input type="hidden" name="id" value={p.id} />
+                <button className="btn" name="decision" value="approve">Approve</button>
+                <button className="btn btn-outline" name="decision" value="reject">Decline</button>
+              </form>
+            </div>
+          ))}
+        </section>
+      )}
+
       <AlumniDirectory
         alumni={alumni}
         addSlot={
@@ -39,7 +62,7 @@ export default async function AlumniPage() {
               bannerQuestion={board ? 'Know a Stanford Latino alum?' : 'Are you a Stanford Latino alum?'}
               buttonLabel={board ? 'Add an alum to the directory' : 'Add yourself to the directory'}
               title={board ? 'Add an alum' : 'Join the alumni directory'}
-              submitLabel={board ? 'Add to directory' : 'Add me'}
+              submitLabel={board ? 'Add to directory' : 'Send request'}
               action={addAlum}
             >
               <Field label="Full name" name="full_name" required />

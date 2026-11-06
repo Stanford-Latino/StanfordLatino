@@ -4,12 +4,13 @@ import EventsCalendar, { type CalEvent } from './EventsCalendar';
 import AddPanel, { Field } from '@/components/AddPanel';
 import { createEvent } from '../actions';
 import ImageField from '@/components/ImageField';
-import { resolvePhoto, signPaths } from '@/lib/board';
+import { isBoardMember, resolvePhoto, signPaths } from '@/lib/board';
 
 export const metadata: Metadata = { title: 'Events · Stanford Latino' };
 
 export default async function EventsPage() {
   const supabase = await createClient();
+  const board = await isBoardMember();
   const { data } = await supabase
     .from('events')
     .select('id, title, category, starts_at, location, description, flyer_path')
@@ -24,7 +25,7 @@ export default async function EventsPage() {
         <h1 className="page-title">Events</h1>
         <p className="lede">Everything Stanford Latino, color coded.</p>
       </div>
-      <AddPanel buttonLabel="Add event" title="Add an event" submitLabel="Add to calendar" action={createEvent}>
+      {board && <AddPanel buttonLabel="Add event" title="Add an event" submitLabel="Add to calendar" action={createEvent}>
         <Field label="Event name" name="title" required placeholder="e.g. Friday Social" />
         <Field label="Type" name="category" required>
           <option value="social">Social</option>
@@ -36,7 +37,7 @@ export default async function EventsPage() {
         <Field label="Location" name="location" placeholder="e.g. El Centro Chicano" />
         <ImageField label="Flyer (optional)" name="flyer_path" folder="flyers" />
         <Field label="Description" name="description" type="textarea" wide />
-      </AddPanel>
+      </AddPanel>}
       <EventsCalendar events={events} />
     </div>
   );

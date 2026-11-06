@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import Placeholder from '@/components/Placeholder';
 import AddPanel, { Field } from '@/components/AddPanel';
+import { isBoardMember } from '@/lib/board';
 import { createAlbum } from '../actions';
 
 export const metadata: Metadata = { title: 'Photos · Stanford Latino' };
@@ -11,6 +12,7 @@ type AlbumRow = { id: string; title: string; event_date: string | null; photos: 
 
 export default async function PhotosPage() {
   const supabase = await createClient();
+  const board = await isBoardMember();
   const { data } = await supabase
     .from('albums')
     .select('id, title, event_date, photos(storage_path)')
@@ -27,14 +29,14 @@ export default async function PhotosPage() {
     <div className="page" style={{ gap: 40 }}>
       <div className="page-head">
         <h1 className="page-title">Photos</h1>
-        <p className="lede">An album for every event. Open one to see everyone’s photos, or add your own.</p>
+        <p className="lede">An album for every event. Open one to see the photos.</p>
       </div>
-      <AddPanel buttonLabel="New album" title="New album" submitLabel="Create album" action={createAlbum}>
+      {board && <AddPanel buttonLabel="New album" title="New album" submitLabel="Create album" action={createAlbum}>
         <Field label="Album name" name="title" required placeholder="e.g. Fall Welcome Social" />
         <Field label="Event date" name="event_date" type="date" />
-      </AddPanel>
+      </AddPanel>}
       {albums.length === 0 ? (
-        <p className="notice">No albums yet. Create the first one with the button above.</p>
+        <p className="notice">No albums yet.</p>
       ) : (
         <div className="albums">
           {albums.map((a) => {

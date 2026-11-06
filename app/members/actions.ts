@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient, getUser } from '@/lib/supabase/server';
 import { isAllowedEmail } from '@/lib/auth';
+import { isBoardMember } from '@/lib/board';
 
 export type FormState = { ok?: boolean; error?: string; message?: string };
 
@@ -13,6 +14,13 @@ async function memberClient() {
   if (!user || !isAllowedEmail(user.email)) return null;
   return createClient();
 }
+
+async function boardClient() {
+  const supabase = await memberClient();
+  if (!supabase || !(await isBoardMember())) return null;
+  return supabase;
+}
+const BOARD_ONLY = 'Only board members can add this.';
 
 /** Turn a "2026-11-20T18:30" (Stanford time) into a real timestamp. */
 function stanfordTimeToISO(local: string) {
@@ -28,8 +36,8 @@ function stanfordTimeToISO(local: string) {
 }
 
 export async function createAlbum(_prev: FormState, f: FormData): Promise<FormState> {
-  const supabase = await memberClient();
-  if (!supabase) return { error: 'Please log in again.' };
+  const supabase = await boardClient();
+  if (!supabase) return { error: BOARD_ONLY };
   const title = text(f, 'title', 120);
   if (!title) return { error: 'Give the album a name.' };
   const { error } = await supabase.from('albums').insert({ title, event_date: text(f, 'event_date', 10) });
@@ -39,8 +47,8 @@ export async function createAlbum(_prev: FormState, f: FormData): Promise<FormSt
 }
 
 export async function createEvent(_prev: FormState, f: FormData): Promise<FormState> {
-  const supabase = await memberClient();
-  if (!supabase) return { error: 'Please log in again.' };
+  const supabase = await boardClient();
+  if (!supabase) return { error: BOARD_ONLY };
   const title = text(f, 'title', 120);
   const when = text(f, 'starts_at', 16);
   const category = text(f, 'category', 20) ?? 'social';
@@ -71,7 +79,9 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
   }
   let linkedin_url = text(f, 'linkedin_url', 300);
   if (linkedin_url && !/^https?:\/\//i.test(linkedin_url)) linkedin_url = `https://${linkedin_url}`;
+  const board = await isBoardMember();
   const { error } = await supabase.from('alumni').insert({
+    status: board ? 'approved' : 'pending',
     full_name,
     class_year,
     major: text(f, 'major', 120),
@@ -83,14 +93,16 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
     email: text(f, 'email', 200),
     photo_url: storedPath(f, 'photo_path', 'alumni/'),
   });
-  if (error) return { error: 'Couldn’t add this person to the directory. Try again.' };
+  if (error) return { error: 'Couldn’t send this. Try again.' };
   revalidatePath('/members/alumni');
-  return { ok: true, message: `${full_name} is in the directory.` };
+  return board
+    ? { ok: true, message: `${full_name} is in the directory.` }
+    : { ok: true, message: 'Thanks! The board will review your request and add you to the directory.' };
 }
 
 export async function createJob(_prev: FormState, f: FormData): Promise<FormState> {
-  const supabase = await memberClient();
-  if (!supabase) return { error: 'Please log in again.' };
+  const supabase = await boardClient();
+  if (!supabase) return { error: BOARD_ONLY };
   const company = text(f, 'company', 120);
   const role = text(f, 'role', 160);
   if (!company || !role) return { error: 'Add the company and the role.' };
@@ -112,11 +124,8 @@ export async function createJob(_prev: FormState, f: FormData): Promise<FormStat
 
 /** Board only: add many alumni at once from a spreadsheet saved as CSV. */
 export async function importAlumni(_prev: FormState, f: FormData): Promise<FormState> {
-  const supabase = await memberClient();
-  if (!supabase) return { error: 'Please log in again.' };
-  const user = await getUser();
-  const { data: board } = await supabase.from('board_members').select('email').ilike('email', user?.email ?? '').maybeSingle();
-  if (!board) return { error: 'Only board members can upload a spreadsheet.' };
+  const supabase = await boardClient();
+  if (!supabase) return { error: 'Only board members can upload a spreadsheet.' };
 
   const file = f.get('file');
   if (!(file instanceof File) || file.size === 0) return { error: 'Choose a CSV file.' };
@@ -166,6 +175,37 @@ export async function importAlumni(_prev: FormState, f: FormData): Promise<FormS
   if (error) return { error: 'Couldn’t import the file. Check it matches the template and try again.' };
   revalidatePath('/members/alumni');
   return { ok: true, message: `Added ${records.length} ${records.length === 1 ? 'person' : 'people'} to the directory.` };
+}
+
+/** Board: approve or turn down an alumni request. */
+export async function reviewAlum(f: FormData) {
+  const supabase = await boardClient();
+  const id = String(f.get('id') ?? '');
+  if (!supabase || !id) return;
+  if (f.get('decision') === 'approve') await supabase.from('alumni').update({ status: 'approved' }).eq('id', id);
+  else await supabase.from('alumni').delete().eq('id', id).eq('status', 'pending');
+  revalidatePath('/members/alumni');
+}
+
+/** Board: give or remove board access by email. */
+export async function addBoardEmail(_prev: FormState, f: FormData): Promise<FormState> {
+  const supabase = await boardClient();
+  if (!supabase) return { error: 'Only board members can do this.' };
+  const email = (text(f, 'email', 200) ?? '').toLowerCase();
+  if (!isAllowedEmail(email)) return { error: 'Use a @stanford.edu email.' };
+  const { error } = await supabase.from('board_members').upsert({ email, name: text(f, 'name', 120) });
+  if (error) return { error: 'Couldn’t add that email. Try again.' };
+  revalidatePath('/members');
+  return { ok: true, message: `${email} can now add and edit content.` };
+}
+
+export async function removeBoardEmail(f: FormData) {
+  const supabase = await boardClient();
+  const email = String(f.get('email') ?? '').toLowerCase();
+  const me = (await getUser())?.email?.toLowerCase();
+  if (!supabase || !email || email === me) return;
+  await supabase.from('board_members').delete().eq('email', email);
+  revalidatePath('/members');
 }
 
 /** Only accept photo paths this site uploaded, in the expected folder. */

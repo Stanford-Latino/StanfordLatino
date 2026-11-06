@@ -4,6 +4,31 @@ import { isAllowedEmail } from '@/lib/auth';
 
 // Keeps the login session fresh and keeps /members/* behind a Stanford login.
 export async function middleware(request: NextRequest) {
+  // Login links that landed on the wrong path (e.g. "/&token_hash=...") get sent to the login step.
+  const { pathname, searchParams } = request.nextUrl;
+  if (pathname !== '/auth/confirm') {
+    const raw = decodeURIComponent(pathname);
+    let params: URLSearchParams | null = null;
+    let next = searchParams.get('next') || '/';
+    if (searchParams.get('token_hash')) {
+      params = searchParams;
+      if (pathname !== '/') next = pathname;
+    } else if (raw.includes('token_hash=')) {
+      const i = raw.indexOf('&');
+      params = new URLSearchParams(raw.slice(i + 1));
+      const before = raw.slice(0, i);
+      if (before && before !== '/') next = before;
+    }
+    if (params?.get('token_hash')) {
+      const to = new URL('/auth/confirm', request.url);
+      to.search = '';
+      to.searchParams.set('token_hash', params.get('token_hash')!);
+      to.searchParams.set('type', params.get('type') || 'email');
+      to.searchParams.set('next', next);
+      return NextResponse.redirect(to);
+    }
+  }
+
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

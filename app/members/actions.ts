@@ -88,6 +88,28 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
   return { ok: true, message: `${full_name} is in the directory.` };
 }
 
+export async function createJob(_prev: FormState, f: FormData): Promise<FormState> {
+  const supabase = await memberClient();
+  if (!supabase) return { error: 'Please log in again.' };
+  const company = text(f, 'company', 120);
+  const role = text(f, 'role', 160);
+  if (!company || !role) return { error: 'Add the company and the role.' };
+  let apply_url = text(f, 'apply_url', 400);
+  if (apply_url && !/^https?:\/\//i.test(apply_url) && !apply_url.includes('@')) apply_url = `https://${apply_url}`;
+  if (apply_url && apply_url.includes('@') && !apply_url.startsWith('mailto:') && !/^https?:/i.test(apply_url)) apply_url = `mailto:${apply_url}`;
+  const { error } = await supabase.from('jobs').insert({
+    company,
+    role,
+    location: text(f, 'location', 120),
+    job_type: text(f, 'job_type', 40),
+    apply_url,
+    description: text(f, 'description', 800),
+  });
+  if (error) return { error: 'Couldn’t post the job. Try again.' };
+  revalidatePath('/members/jobs');
+  return { ok: true, message: `${role} at ${company} is posted.` };
+}
+
 /** Board only: add many alumni at once from a spreadsheet saved as CSV. */
 export async function importAlumni(_prev: FormState, f: FormData): Promise<FormState> {
   const supabase = await memberClient();

@@ -10,11 +10,16 @@ type Props = {
   submitLabel: string;
   action: (prev: FormState, f: FormData) => Promise<FormState>;
   children: React.ReactNode;
+  /** 'banner' shows a maroon "Are you a …?" banner instead of a button. */
+  variant?: 'button' | 'banner';
+  bannerQuestion?: string;
+  align?: 'center' | 'start';
 };
 
-/** A "+ Add …" button that opens a form right on the page. */
-export default function AddPanel({ buttonLabel, title, submitLabel, action, children }: Props) {
+/** A "+ Add …" button (or banner) that opens a form right on the page. */
+export default function AddPanel({ buttonLabel, title, submitLabel, action, children, variant = 'button', bannerQuestion, align = 'center' }: Props) {
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -27,12 +32,24 @@ export default function AddPanel({ buttonLabel, title, submitLabel, action, chil
 
   return (
     <div className="add-panel">
-      <div className="add-bar">
-        <button className="btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-          <Plus /> {buttonLabel}
-        </button>
-        {state.ok && state.message && !open && <p role="status" className="add-ok">{state.message}</p>}
-      </div>
+      {variant === 'banner' ? (
+        !hidden && (
+          <div className="alum-banner">
+            {bannerQuestion && <p>{bannerQuestion}</p>}
+            <button className="banner-link" onClick={() => setOpen((o) => !o)} aria-expanded={open}>{buttonLabel} →</button>
+            <button className="banner-close" aria-label="Dismiss" onClick={() => { setHidden(true); setOpen(false); }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
+        )
+      ) : (
+        <div className="add-bar" style={{ justifyContent: align === 'start' ? 'flex-start' : 'center' }}>
+          <button className="btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+            <Plus /> {buttonLabel}
+          </button>
+        </div>
+      )}
+      {state.ok && state.message && !open && <p role="status" className="add-ok">{state.message}</p>}
       {open && (
         <form ref={formRef} action={formAction} className="add-form">
           <h2>{title}</h2>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Pin, Search } from '@/components/Icons';
+import { Chevron, Pin, Search } from '@/components/Icons';
 
 export type Alum = {
   id: string;
@@ -17,31 +17,37 @@ export type Alum = {
   photo_url: string | null;
 };
 
+type Key = 'class_year' | 'major' | 'industry' | 'city' | 'company';
+const FILTERS: { key: Key; label: string; hint: string }[] = [
+  { key: 'class_year', label: 'Class year', hint: 'Graduation year' },
+  { key: 'major', label: 'Major', hint: 'Area of study' },
+  { key: 'industry', label: 'Industry', hint: 'Industry' },
+  { key: 'city', label: 'Location', hint: 'City or country' },
+  { key: 'company', label: 'Company / organization', hint: 'Company' },
+];
+
 const uniq = (xs: (string | number | null)[]) =>
   Array.from(new Set(xs.filter((x) => x !== null && x !== '').map(String))).sort();
 
-export default function AlumniDirectory({ alumni }: { alumni: Alum[] }) {
+export default function AlumniDirectory({ alumni, addSlot }: { alumni: Alum[]; addSlot?: React.ReactNode }) {
   const [q, setQ] = useState('');
-  const [year, setYear] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [city, setCity] = useState('');
+  const [chosen, setChosen] = useState<Partial<Record<Key, string>>>({});
+  const [open, setOpen] = useState<Partial<Record<Key, boolean>>>({ class_year: true });
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
-  const years = useMemo(() => uniq(alumni.map((a) => a.class_year)).reverse(), [alumni]);
-  const industries = useMemo(() => uniq(alumni.map((a) => a.industry)), [alumni]);
-  const cities = useMemo(() => uniq(alumni.map((a) => a.city)), [alumni]);
+  const options = useMemo(() => {
+    const o = {} as Record<Key, string[]>;
+    FILTERS.forEach((f) => { o[f.key] = uniq(alumni.map((a) => a[f.key])); });
+    o.class_year.reverse();
+    return o;
+  }, [alumni]);
 
+  const allOpen = FILTERS.every((f) => open[f.key]);
   const shown = alumni.filter((a) => {
     const text = [a.full_name, a.major, a.role, a.company, a.industry, a.city, a.class_year].join(' ').toLowerCase();
-    return (
-      (!q || text.includes(q.trim().toLowerCase())) &&
-      (!year || String(a.class_year) === year) &&
-      (!industry || a.industry === industry) &&
-      (!city || a.city === city)
-    );
+    if (q && !text.includes(q.trim().toLowerCase())) return false;
+    return FILTERS.every((f) => !chosen[f.key] || String(a[f.key] ?? '') === chosen[f.key]);
   });
-
-  const clear = () => { setYear(''); setIndustry(''); setCity(''); };
 
   return (
     <>
@@ -55,16 +61,40 @@ export default function AlumniDirectory({ alumni }: { alumni: Alum[] }) {
         <aside className="filters" aria-label="Filters">
           <div className="filters-head">
             <h2>Filter by</h2>
-            <button onClick={clear} style={{ background: 'none', border: 0, fontSize: 14, cursor: 'pointer', minHeight: 44 }}>Clear</button>
+            <button
+              onClick={() => setOpen(allOpen ? {} : Object.fromEntries(FILTERS.map((f) => [f.key, true])))}
+              style={{ background: 'none', border: 0, fontSize: 15, cursor: 'pointer', minHeight: 44 }}
+            >
+              {allOpen ? 'Collapse all' : 'Expand all'}
+            </button>
           </div>
-          <Filter id="f-year" label="Class year" value={year} onChange={setYear} options={years} />
-          <Filter id="f-ind" label="Industry" value={industry} onChange={setIndustry} options={industries} />
-          <Filter id="f-city" label="Location" value={city} onChange={setCity} options={cities} />
+          {FILTERS.map((f) => (
+            <div key={f.key} style={{ borderBottom: '1px solid #d9d9d9' }}>
+              <button className="filter-toggle" aria-expanded={!!open[f.key]} onClick={() => setOpen((o) => ({ ...o, [f.key]: !o[f.key] }))}>
+                {f.label} <Chevron open={!!open[f.key]} size={18} />
+              </button>
+              {open[f.key] && (
+                <div className="filter-body">
+                  <label htmlFor={`flt-${f.key}`} style={{ fontSize: 15 }}>{f.hint}</label>
+                  <select
+                    id={`flt-${f.key}`}
+                    className="select"
+                    value={chosen[f.key] ?? ''}
+                    onChange={(e) => setChosen((c) => ({ ...c, [f.key]: e.target.value }))}
+                  >
+                    <option value="">Any</option>
+                    {options[f.key].map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+          ))}
         </aside>
 
         <div className="dir-results">
+          {addSlot}
           <div className="dir-bar">
-            <p>{shown.length} {shown.length === 1 ? 'person' : 'people'}</p>
+            <p style={{ fontSize: 18 }}>{shown.length} {shown.length === 1 ? 'person' : 'people'}</p>
             <div className="toggle">
               <span>View:</span>
               <button aria-pressed={view === 'list'} onClick={() => setView('list')}>List</button>
@@ -73,7 +103,7 @@ export default function AlumniDirectory({ alumni }: { alumni: Alum[] }) {
           </div>
 
           {alumni.length === 0 ? (
-            <p className="notice">No alumni yet. Add yourself with the button above.</p>
+            <p className="notice">No alumni yet. Be the first to add yourself.</p>
           ) : shown.length === 0 ? (
             <p className="notice">No matches.</p>
           ) : (
@@ -94,10 +124,12 @@ export default function AlumniDirectory({ alumni }: { alumni: Alum[] }) {
                     ) : (
                       <span className="name">{a.full_name}</span>
                     )}
-                    <p>{[a.class_year && `Class of ${a.class_year}`, a.major].filter(Boolean).join(' · ')}</p>
+                    {(a.class_year || a.major) && (
+                      <p>{[a.class_year && `Class of ${a.class_year}`, a.major].filter(Boolean).join(' · ')}</p>
+                    )}
                     {(a.role || a.company) && (
                       <>
-                        <p style={{ marginTop: 6, fontSize: 13 }}>Current position</p>
+                        <p style={{ marginTop: 6, fontSize: 14 }}>Current position</p>
                         {a.role && <p style={{ fontWeight: 700 }}>{a.role}</p>}
                         {a.company && <p>{a.company}</p>}
                       </>
@@ -114,17 +146,5 @@ export default function AlumniDirectory({ alumni }: { alumni: Alum[] }) {
         </div>
       </div>
     </>
-  );
-}
-
-function Filter({ id, label, value, onChange, options }: { id: string; label: string; value: string; onChange: (v: string) => void; options: string[] }) {
-  return (
-    <div className="filter">
-      <label htmlFor={id} className="label">{label}</label>
-      <select id={id} className="select" value={value} onChange={(e) => onChange(e.target.value)}>
-        <option value="">Any</option>
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
-      </select>
-    </div>
   );
 }

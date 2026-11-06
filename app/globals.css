@@ -216,7 +216,12 @@ main { min-height: 60vh; }
 /* ── Add forms (albums, events, alumni) ─── */
 .add-panel { display: flex; flex-direction: column; gap: 16px; }
 .add-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; }
-.add-ok { font-size: 16px; }
+.add-ok { font-size: 16px; text-align: center; }
+.alum-banner { position: relative; background: var(--maroon-dark); color: #fff; padding: 26px 56px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 18px; }
+.banner-link { background: none; border: 0; color: #fff; font-size: 18px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: 6px; }
+.banner-close { position: absolute; top: 6px; right: 6px; width: 44px; height: 44px; background: none; border: 0; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.filter-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; background: none; border: 0; padding: 18px 0; min-height: 44px; font-size: 18px; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left; }
+.filter-body { display: flex; flex-direction: column; gap: 6px; padding-bottom: 18px; }
 .add-form { border: 1px solid var(--ink); padding: 28px; display: flex; flex-direction: column; gap: 18px; background: #fff; }
 .add-form h2 { font-size: 28px; }
 .add-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 20px; }

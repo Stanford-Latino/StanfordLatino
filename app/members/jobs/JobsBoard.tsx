@@ -19,7 +19,7 @@ export default function JobsBoard({ jobs }: { jobs: Job[] }) {
   const shown = jobs.filter((j) => company === 'All' || j.company === company);
 
   if (jobs.length === 0) {
-    return <p className="notice">No open roles right now. Check back soon.</p>;
+    return <p className="notice">No open roles yet. Know of one? Post it with the button above.</p>;
   }
 
   return (

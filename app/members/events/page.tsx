@@ -36,7 +36,6 @@ export default async function EventsPage() {
         <Field label="Date and time" name="starts_at" type="datetime-local" required />
         <Field label="Location" name="location" placeholder="e.g. El Centro Chicano" />
         <ImageField label="Flyer (optional)" name="flyer_path" folder="flyers" />
-        <Field label="Description" name="description" type="textarea" wide />
       </AddPanel>}
       <EventsCalendar events={events} />
     </div>

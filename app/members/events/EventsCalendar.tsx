@@ -135,7 +135,6 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
             <h3>{sel.title}</h3>
             <p className="event-pop-when">{time(sel.starts_at)}</p>
             {sel.location && <p className="event-pop-where">{sel.location}</p>}
-            {sel.description && <p className="event-pop-desc">{sel.description}</p>}
             {sel.flyer_url && (
               <a href={sel.flyer_url} target="_blank" rel="noreferrer">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

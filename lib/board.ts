@@ -5,8 +5,11 @@ export async function isBoardMember() {
   const user = await getUser();
   if (!user?.email) return false;
   const supabase = await createClient();
-  const { data } = await supabase.rpc('is_board');
-  return data === true;
+  const { data, error } = await supabase.rpc('is_board');
+  if (!error) return data === true;
+  // Fallback if the database function isn't reachable: check the board list directly.
+  const { data: row } = await supabase.from('board_members').select('email').ilike('email', user.email).maybeSingle();
+  return Boolean(row);
 }
 
 /** Photos are stored privately; this turns stored paths into temporary links. */

@@ -376,3 +376,15 @@ textarea.input { resize: vertical; font: inherit; }
 
 .edit-form { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line-2, #d6d6d6); padding: 20px; background: #fff; }
 .edit-form textarea { resize: vertical; }
+
+/* Meet the Board: large photos, 3 per row, names on one line */
+#board .tier { max-width: 1200px; align-items: stretch; }
+#board .tier-label { text-align: center; }
+#board .members { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 56px 48px; width: 100%; }
+#board .member { width: auto; align-items: flex-start; text-align: left; gap: 18px; }
+#board .avatar { width: 100%; height: auto; aspect-ratio: 1 / 1; border: 0; font-size: 72px; }
+#board .avatar img { object-position: center 30%; }
+#board .member-name { font-size: 28px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+#board .member-role { font-size: 17px; margin-top: 2px; }
+@media (max-width: 900px) { #board .members { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; } #board .member-name { font-size: 22px; } }
+@media (max-width: 520px) { #board .members { gap: 32px 16px; } #board .member-name { font-size: 18px; white-space: normal; } #board .member-role { font-size: 14px; } }

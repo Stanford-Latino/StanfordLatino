@@ -36,7 +36,7 @@ export default async function Home() {
             <div className="members">
               {tier.members.map((m) => (
                 <div key={m.name + m.role} className="member">
-                  <div className="avatar" style={{ width: tier.size, height: tier.size }}>
+                  <div className="avatar">
                     {m.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={m.photo} alt={m.name} />

@@ -273,3 +273,11 @@ drop policy if exists "presidents edit alumni" on public.alumni;
 drop policy if exists "presidents delete alumni" on public.alumni;
 create policy "presidents edit alumni" on public.alumni for update to authenticated using (public.is_president());
 create policy "presidents delete alumni" on public.alumni for delete to authenticated using (public.is_president());
+-- Lets the site look up the presidents' emails to send them notifications.
+-- Run once in the SQL Editor. Safe to run more than once.
+create or replace function public.president_emails()
+returns setof text
+language sql stable security definer set search_path = public
+as $$
+  select email from public.board_members where role = 'president' and public.is_member();
+$$;

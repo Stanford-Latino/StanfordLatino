@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { shrinkImage } from '@/lib/shrinkImage';
 import { Plus } from '@/components/Icons';
+import { photosAdded } from '../../actions';
 
 const MAX_MB = 15;
 
@@ -34,6 +35,7 @@ export default function Uploader({ albumId }: { albumId: string }) {
       done++;
     }
     setBusy(false);
+    if (done) photosAdded(albumId, done).catch(() => {});
     setMsg(failed ? `Added ${done}. ${failed} couldn’t be added (images under ${MAX_MB} MB only).` : `Added ${done} ${done === 1 ? 'photo' : 'photos'}.`);
     router.refresh();
   }

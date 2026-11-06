@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient, getUser } from '@/lib/supabase/server';
 import { isAllowedEmail } from '@/lib/auth';
 import { isBoardMember, isPresident } from '@/lib/board';
+import { notifyPresidents } from '@/lib/notify';
 
 export type FormState = { ok?: boolean; error?: string; message?: string };
 
@@ -44,6 +45,7 @@ export async function createAlbum(_prev: FormState, f: FormData): Promise<FormSt
   const { error } = await supabase.from('albums').insert({ title, event_date: text(f, 'event_date', 10) });
   if (error) return { error: 'Couldn’t create the album. Try again.' };
   revalidatePath('/members/photos');
+  await notifyPresidents(`New album: ${title}`, '/members/photos');
   return { ok: true, message: `Album “${title}” created.` };
 }
 
@@ -65,6 +67,7 @@ export async function createEvent(_prev: FormState, f: FormData): Promise<FormSt
   });
   if (error) return { error: 'Couldn’t add the event. Try again.' };
   revalidatePath('/members/events');
+  await notifyPresidents(`New event: ${title}`, '/members/events');
   return { ok: true, message: `“${title}” is on the calendar.` };
 }
 
@@ -96,6 +99,7 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
   });
   if (error) return { error: 'Couldn’t send this. Try again.' };
   revalidatePath('/members/alumni');
+  await notifyPresidents(board ? `Added to the alumni directory: ${full_name}` : `Alumni request to review: ${full_name}`, '/members/alumni');
   return board
     ? { ok: true, message: `${full_name} is in the directory.` }
     : { ok: true, message: 'Thanks! The board will review your request and add you to the directory.' };
@@ -120,6 +124,7 @@ export async function createJob(_prev: FormState, f: FormData): Promise<FormStat
   });
   if (error) return { error: 'Couldn’t post the job. Try again.' };
   revalidatePath('/members/jobs');
+  await notifyPresidents(`New job: ${role} at ${company}`, '/members/jobs');
   return { ok: true, message: `${role} at ${company} is posted.` };
 }
 
@@ -175,6 +180,7 @@ export async function importAlumni(_prev: FormState, f: FormData): Promise<FormS
   const { error } = await supabase.from('alumni').insert(records);
   if (error) return { error: 'Couldn’t import the file. Check it matches the template and try again.' };
   revalidatePath('/members/alumni');
+  await notifyPresidents(`Spreadsheet upload: ${records.length} alumni added`, '/members/alumni');
   return { ok: true, message: `Added ${records.length} ${records.length === 1 ? 'person' : 'people'} to the directory.` };
 }
 
@@ -187,6 +193,7 @@ export async function renameAlbum(_prev: FormState, f: FormData): Promise<FormSt
   if (!id || !title) return { error: 'Give the album a name.' };
   const { error } = await supabase.from('albums').update({ title }).eq('id', id);
   if (error) return { error: 'Couldn’t rename the album. Try again.' };
+  await notifyPresidents(`Album renamed to ${title}`, `/members/photos/${id}`);
   revalidatePath('/members/photos');
   revalidatePath(`/members/photos/${id}`);
   return { ok: true };
@@ -202,6 +209,7 @@ export async function deleteAlbum(f: FormData) {
   if (error) return;
   const paths = (photos ?? []).map((p) => p.storage_path);
   if (paths.length) await supabase.storage.from('photos').remove(paths);
+  await notifyPresidents('An album was deleted', '/members/photos');
   revalidatePath('/members/photos');
   redirect('/members/photos');
 }
@@ -214,6 +222,7 @@ export async function reviewAlum(f: FormData) {
   const decision = f.get('decision');
   if (decision === 'approve') await supabase.from('alumni').update({ status: 'approved' }).eq('id', id);
   else if (decision === 'reject') await supabase.from('alumni').delete().eq('id', id).eq('status', 'pending');
+  if (decision === 'approve' || decision === 'reject') await notifyPresidents(`Alumni request ${decision === 'approve' ? 'approved' : 'declined'}`, '/members/alumni');
   revalidatePath('/members/alumni');
 }
 
@@ -233,6 +242,7 @@ export async function addBoardEmail(_prev: FormState, f: FormData): Promise<Form
   const { error } = await supabase.from('board_members').upsert({ email, name: text(f, 'name', 120), role });
   if (error) return { error: 'Couldn’t add that email. Try again.' };
   revalidatePath('/members');
+  await notifyPresidents(`Board access given to ${email}`, '/members');
   return { ok: true, message: `${email} added as ${role === 'president' ? 'a president' : 'a board member'}.` };
 }
 
@@ -242,7 +252,14 @@ export async function removeBoardEmail(f: FormData) {
   const me = (await getUser())?.email?.toLowerCase();
   if (!supabase || !email || email === me) return;
   await supabase.from('board_members').delete().eq('email', email);
+  await notifyPresidents(`Board access removed for ${email}`, '/members');
   revalidatePath('/members');
+}
+
+/** Called after photos finish uploading to an album. */
+export async function photosAdded(albumId: string, count: number) {
+  if (!(await isBoardMember()) || count < 1) return;
+  await notifyPresidents(`${count} new ${count === 1 ? 'photo' : 'photos'} added to an album`, `/members/photos/${albumId}`);
 }
 
 /** Only accept photo paths this site uploaded, in the expected folder. */

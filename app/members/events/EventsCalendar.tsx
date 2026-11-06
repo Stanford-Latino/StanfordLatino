@@ -102,14 +102,14 @@ export default function EventsCalendar({ events }: { events: CalEvent[] }) {
               {cat(sel.category).label} · {time(sel.starts_at)}
             </p>
             <h3>{sel.title}</h3>
-            <p style={{ fontSize: 16 }}>{[sel.location, sel.description].filter(Boolean).join(' — ')}</p>
+            <p style={{ fontSize: 16 }}>{[sel.location, sel.description].filter(Boolean).join(' · ')}</p>
           </div>
           <button className="btn btn-outline" onClick={() => setSelId(null)}>Close</button>
         </div>
       )}
 
       {events.length === 0 && (
-        <p className="notice">No events yet. The board adds them in Supabase (see README → “Adding content”).</p>
+        <p className="notice">No events yet. Add one with the button above.</p>
       )}
     </>
   );

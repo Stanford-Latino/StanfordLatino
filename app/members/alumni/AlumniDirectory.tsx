@@ -73,7 +73,7 @@ export default function AlumniDirectory({ alumni }: { alumni: Alum[] }) {
           </div>
 
           {alumni.length === 0 ? (
-            <p className="notice">No alumni yet. The board adds them in Supabase (see README → “Adding content”).</p>
+            <p className="notice">No alumni yet. Add yourself with the button above.</p>
           ) : shown.length === 0 ? (
             <p className="notice">No matches.</p>
           ) : (

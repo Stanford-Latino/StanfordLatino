@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import Placeholder from '@/components/Placeholder';
+import AddPanel, { Field } from '@/components/AddPanel';
+import { createAlbum } from '../actions';
 
 export const metadata: Metadata = { title: 'Photos · Stanford Latino' };
 
@@ -27,8 +29,12 @@ export default async function PhotosPage() {
         <h1 className="page-title">Photos</h1>
         <p className="lede">An album for every event. Open one to see everyone’s photos, or add your own.</p>
       </div>
+      <AddPanel buttonLabel="New album" title="New album" submitLabel="Create album" action={createAlbum}>
+        <Field label="Album name" name="title" required placeholder="e.g. Fall Welcome Social" />
+        <Field label="Event date" name="event_date" type="date" />
+      </AddPanel>
       {albums.length === 0 ? (
-        <p className="notice">No albums yet. The board creates one per event in Supabase (see README → “Adding content”).</p>
+        <p className="notice">No albums yet. Create the first one with the button above.</p>
       ) : (
         <div className="albums">
           {albums.map((a) => {

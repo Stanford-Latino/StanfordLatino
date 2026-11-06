@@ -17,7 +17,7 @@ export default async function JobsPage() {
       <div className="page-head">
         <h1 className="page-title">Jobs</h1>
         <p className="lede">
-          Roles we’ve found with the companies we’re in contact with across Latin America and the US — plus application support from the board.
+          Roles we’ve found with the companies we’re in contact with across Latin America and the US, plus application support from the board.
         </p>
       </div>
       <JobsBoard jobs={(data ?? []) as Job[]} />

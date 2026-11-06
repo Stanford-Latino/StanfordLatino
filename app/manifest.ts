@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Stanford Latino',
     short_name: 'Stanford Latino',
-    description: 'Stanford Latino — community, events, jobs and alumni.',
+    description: 'Stanford Latino: community, events, jobs and alumni.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

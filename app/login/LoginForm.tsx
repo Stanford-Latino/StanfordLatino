@@ -21,7 +21,7 @@ export default function LoginForm({ next, initialError }: { next: string; initia
     <form action={action} className="login-card">
       <h1>Login</h1>
       <p style={{ fontSize: 16, lineHeight: 1.5 }}>
-        Use your student/alumni login. We’ll email you a link — no password needed.
+        Use your Stanford student/alumni email.
       </p>
       <label htmlFor="email" className="label">Stanford email</label>
       <input id="email" name="email" type="email" className="input" placeholder="you@stanford.edu" autoComplete="email" required />

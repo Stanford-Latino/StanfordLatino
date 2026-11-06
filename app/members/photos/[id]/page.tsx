@@ -39,7 +39,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ id: stri
         <Uploader albumId={album.id} />
       </div>
       {paths.length === 0 ? (
-        <p className="notice">No photos yet — be the first to add some.</p>
+        <p className="notice">No photos yet. Be the first to add some.</p>
       ) : (
         <div className="photo-grid">
           {(signed ?? [])

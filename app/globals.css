@@ -8,7 +8,7 @@
   --tint: #faf7f7;
   --placeholder: #a89898;
   --font-serif: 'Playfair Display';
-  --font-sans: 'Playfair Display';
+  --font-sans: 'Lora';
 }
 
 * { box-sizing: border-box; }
@@ -107,7 +107,7 @@ main { min-height: 60vh; }
 .welcome-text h1 { font-size: 46px; line-height: 1.1; }
 
 .tier { width: 100%; max-width: 1120px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
-.tier-label { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 22px; }
+.tier-label { font-family: var(--font-sans), Georgia, serif; font-size: 20px; font-weight: 500; letter-spacing: 0.02em; }
 .members { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px 28px; }
 .member { width: 150px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
 .avatar { background: #f4f1f1; border: 1px solid #ddd5d5; display: flex; align-items: center; justify-content: center; overflow: hidden; font-family: var(--font-serif), Georgia, serif; font-weight: 600; font-size: 34px; }
@@ -212,6 +212,18 @@ main { min-height: 60vh; }
 .album-head h1 { font-size: 52px; line-height: 1.05; }
 .upload { position: relative; }
 .upload input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+
+/* ── Add forms (albums, events, alumni) ─── */
+.add-panel { display: flex; flex-direction: column; gap: 16px; }
+.add-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; }
+.add-ok { font-size: 16px; }
+.add-form { border: 1px solid var(--ink); padding: 28px; display: flex; flex-direction: column; gap: 18px; background: #fff; }
+.add-form h2 { font-size: 28px; }
+.add-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.wide { grid-column: 1 / -1; }
+.add-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+textarea.input { resize: vertical; font: inherit; }
 
 /* ── Members home ───────────────────────── */
 .member-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }

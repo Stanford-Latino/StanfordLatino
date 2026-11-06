@@ -19,7 +19,7 @@ export default function JobsBoard({ jobs }: { jobs: Job[] }) {
   const shown = jobs.filter((j) => company === 'All' || j.company === company);
 
   if (jobs.length === 0) {
-    return <p className="notice">No open roles right now. The board adds them in Supabase (see README → “Adding content”).</p>;
+    return <p className="notice">No open roles right now. Check back soon.</p>;
   }
 
   return (

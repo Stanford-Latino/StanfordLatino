@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import AlumniDirectory, { type Alum } from './AlumniDirectory';
+import AddPanel, { Field } from '@/components/AddPanel';
+import { addAlum } from '../actions';
 
 export const metadata: Metadata = { title: 'Alumni Directory · Stanford Latino' };
 
@@ -16,9 +18,20 @@ export default async function AlumniPage() {
       <div className="page-head" style={{ gap: 18 }}>
         <h1 className="page-title" style={{ fontSize: 72 }}>Alumni Directory</h1>
         <p className="lede" style={{ fontSize: 20 }}>
-          Find Stanford Latino alumni by name, class, company or city — and reach out for coffee chats, referrals and mentoring.
+          Find Stanford Latino alumni by name, class, company or city, and reach out for coffee chats, referrals and mentoring.
         </p>
       </div>
+      <AddPanel buttonLabel="Add yourself as an alum" title="Join the alumni directory" submitLabel="Add me" action={addAlum}>
+        <Field label="Full name" name="full_name" required />
+        <Field label="Class year" name="class_year" type="number" placeholder="e.g. 2027" />
+        <Field label="Major" name="major" />
+        <Field label="Current role" name="role" placeholder="e.g. Product Manager" />
+        <Field label="Company" name="company" />
+        <Field label="Industry" name="industry" placeholder="e.g. Consulting, Tech, Finance" />
+        <Field label="City" name="city" placeholder="e.g. Mexico City" />
+        <Field label="LinkedIn" name="linkedin_url" placeholder="linkedin.com/in/…" />
+        <Field label="Email to share" name="email" type="email" />
+      </AddPanel>
       <AlumniDirectory alumni={(data ?? []) as Alum[]} />
     </div>
   );

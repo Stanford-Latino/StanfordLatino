@@ -13,7 +13,7 @@ export const contact = {
 export const welcome = {
   title: 'Welcome to Stanford Latino',
   paragraphs: [
-    'Stanford Latino is a student-led undergraduate organization that prepares Latin American Stanford students for leadership — with training, guidance, resources and a large international network.',
+    'Stanford Latino is a student-led undergraduate organization that prepares Latin American Stanford students for leadership through training, guidance, resources and a large international network.',
     'Through pre-professional, social and philanthropic initiatives, we bring the Latino community at Stanford together and build meaningful relationships with the wider Stanford community.',
   ],
 };
@@ -84,9 +84,9 @@ export type Initiative = {
 };
 
 const placeholderEvents: PastEvent[] = [
-  { name: '[Event name]', date: '[Month DD, YYYY]', description: '[A sentence or two about the event — who came, what happened.]' },
-  { name: '[Event name]', date: '[Month DD, YYYY]', description: '[A sentence or two about the event — who came, what happened.]' },
-  { name: '[Event name]', date: '[Month DD, YYYY]', description: '[A sentence or two about the event — who came, what happened.]' },
+  { name: '[Event name]', date: '[Month DD, YYYY]', description: '[A sentence or two about the event: who came, what happened.]' },
+  { name: '[Event name]', date: '[Month DD, YYYY]', description: '[A sentence or two about the event: who came, what happened.]' },
+  { name: '[Event name]', date: '[Month DD, YYYY]', description: '[A sentence or two about the event: who came, what happened.]' },
 ];
 
 export const initiatives: Initiative[] = [
@@ -133,8 +133,8 @@ export const initiatives: Initiative[] = [
   {
     slug: 'marketing',
     title: 'Marketing',
-    blurb: 'Our brand and merch — including the Estanfor hats, a Stanford Latino staple.',
-    body: 'Our brand, social media and merch — including the Estanfor hats, the staple everyone on campus knows us for.',
+    blurb: 'Our brand and merch, including the Estanfor hats, a Stanford Latino staple.',
+    body: 'Our brand, social media and merch, including the Estanfor hats, the staple everyone on campus knows us for.',
     events: [
       { name: 'Estanfor Hats', date: '[Month YYYY]', description: 'Our staple, much-loved Estanfor hats. [Add the story behind them.]' },
       ...placeholderEvents.slice(0, 2),
@@ -144,14 +144,14 @@ export const initiatives: Initiative[] = [
 
 export const about = {
   whoWeServe: [
-    'Every Stanford undergraduate. Stanford Latino brings together students from across Latin America and Latino students from the US — and anyone who wants to be part of the community.',
+    'Every Stanford undergraduate. Stanford Latino brings together students from across Latin America and Latino students from the US, and anyone who wants to be part of the community.',
     'Members get our alumni directory, events calendar, jobs board and photo albums, plus mentorship and application support from the board.',
   ],
   howToJoin: [
     { title: 'Join the mailing list', description: 'Event invites and opportunities, straight to your inbox: [mailing list link]' },
     { title: 'Come to an event', description: 'Comunidad socials, speaker events and service days are open to all undergrads.' },
     { title: 'Log in as a member', description: 'Use your @stanford.edu email to log in to the alumni directory, events, jobs and photos.' },
-    { title: 'Join the board', description: 'Board applications open each [quarter] — dates go out on the mailing list.' },
+    { title: 'Join the board', description: 'Board applications open each [quarter]. Dates go out on the mailing list.' },
   ],
 };
 
@@ -159,7 +159,7 @@ export const memberPages = [
   { href: '/members/alumni', label: 'Alumni Directory', description: 'Find alumni for coffee chats, referrals and mentoring.' },
   { href: '/members/events', label: 'Events', description: 'Everything coming up, color coded.' },
   { href: '/members/jobs', label: 'Jobs', description: 'Open roles from the companies we work with.' },
-  { href: '/members/photos', label: 'Photos', description: 'Albums from every event — add yours.' },
+  { href: '/members/photos', label: 'Photos', description: 'Albums from every event. Add yours.' },
 ];
 
 export function initials(name: string) {

@@ -111,8 +111,11 @@ It appears in the menu and on the home page automatically.
 
 ### 4c. Members area: events, jobs, alumni, photo albums
 
-These live in **Supabase → Table Editor** (looks like a spreadsheet). Click a table, then
-**Insert → Insert row**. Changes show on the site immediately.
+**Any logged-in member can add these right on the website:** a new album (Photos page), photos
+(inside an album), an event (Events page), and themselves to the alumni directory (Alumni page).
+
+To edit or remove anything (or add jobs), use **Supabase → Table Editor** (looks like a spreadsheet).
+Click a table, then **Insert → Insert row**, or click a cell to edit it. Changes show on the site immediately.
 
 | Table | One row = | Fill in |
 |---|---|---|

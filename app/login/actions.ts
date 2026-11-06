@@ -14,7 +14,7 @@ export async function sendLoginLink(_prev: LoginState, formData: FormData): Prom
     return { error: 'Please use your @stanford.edu email.' };
   }
   if (!supabaseConfigured()) {
-    return { error: 'Login isn’t set up yet — add the Supabase keys (see README).' };
+    return { error: 'Login isn’t available right now. Please try again later.' };
   }
 
   const h = await headers();

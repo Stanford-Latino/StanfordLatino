@@ -29,11 +29,14 @@ export async function sendLoginLink(_prev: LoginState, formData: FormData): Prom
   });
 
   if (error) {
+    const wait = error.message.match(/after (\d+) seconds?/i);
+    if (wait) return { error: `Please wait ${wait[1]} seconds before asking for another code.`, sentTo: formData.get('resend') ? email : undefined };
     const limited = error.status === 429 || /rate|limit/i.test(error.message);
     return {
       error: limited
         ? 'Too many login emails were sent in the last hour. Please try again later.'
         : 'We couldn’t send the email. Try again in a minute.',
+      sentTo: formData.get('resend') ? email : undefined,
     };
   }
   return { sentTo: email };
@@ -48,7 +51,8 @@ export async function verifyLoginCode(_prev: LoginState, formData: FormData): Pr
   if (!/^\d{6,10}$/.test(token)) return { error: 'Enter the code from the email.', sentTo: email };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-  if (error) return { error: 'That code didn’t work or expired. Check it, or send a new email.', sentTo: email };
+  let { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+  if (error) ({ error } = await supabase.auth.verifyOtp({ email, token, type: 'signup' }));
+  if (error) return { error: 'That code didn’t work or expired. Check it, or send a new code.', sentTo: email };
   redirect(next);
 }

@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Stanford Latino: community, events, jobs and alumni.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
+    background_color: '#f7f3ea',
     theme_color: '#8C1515',
     icons: [
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },

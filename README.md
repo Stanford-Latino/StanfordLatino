@@ -223,3 +223,14 @@ GitHub → Settings → Secrets and variables → Actions:
 - `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`: Vercel → project → Settings → General (Team ID and Project ID)
 
 You can also publish manually: GitHub → Actions → Deploy to Vercel → Run workflow.
+
+## Database updates (automatic)
+
+New files in `supabase/` named like `013_something.sql` are applied automatically by GitHub Actions
+(`.github/workflows/database.yml`) when pushed to `main`. Each runs once; finished ones are listed in
+the `_migrations` table. It needs one secret in GitHub → Settings → Secrets and variables → Actions:
+
+- `SUPABASE_DB_URL`: Supabase → Connect → Session pooler connection string (port 5432), with the
+  database password filled in. (GitHub can't use the "Direct connection" one.)
+
+Rule: never edit a numbered file after it has run. Make a new numbered file instead.

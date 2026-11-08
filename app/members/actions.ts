@@ -184,17 +184,23 @@ export async function importAlumni(_prev: FormState, f: FormData): Promise<FormS
   if (!records.length) return { error: 'No rows with a name were found.' };
 
   // Skip anyone already in the directory (or listed twice in the file).
-  const { data: existing } = await supabase.from('alumni').select('full_name, class_year, email');
+  const { data: existing } = await supabase.from('alumni').select('full_name, class_year, email, linkedin_url');
   const norm = (v: string | null | undefined) => (v ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
-  const seenEmail = new Set((existing ?? []).map((e) => norm(e.email)).filter(Boolean));
-  const seenName = new Map<string, (number | null)[]>();
-  (existing ?? []).forEach((e) => seenName.set(norm(e.full_name), [...(seenName.get(norm(e.full_name)) ?? []), e.class_year]));
+  const li = (v: string | null | undefined) => norm(v).replace(/^https?:\/\/(www\.)?|\/+$/g, '');
+  type Row = { full_name: string; class_year: number | null; email: string | null; linkedin_url: string | null };
+  const known: Row[] = [...((existing ?? []) as Row[])];
+  const same = (a: Row, b: Row) => {
+    if (a.email && b.email && norm(a.email) === norm(b.email)) return true;
+    if (a.linkedin_url && b.linkedin_url && li(a.linkedin_url) === li(b.linkedin_url)) return true;
+    if (norm(a.full_name) !== norm(b.full_name)) return false;
+    if (a.class_year !== null && b.class_year !== null && a.class_year !== b.class_year) return false;
+    if (a.email && b.email && norm(a.email) !== norm(b.email)) return false;
+    if (a.linkedin_url && b.linkedin_url && li(a.linkedin_url) !== li(b.linkedin_url)) return false;
+    return true;
+  };
   const fresh = records.filter((r) => {
-    if (r.email && seenEmail.has(norm(r.email))) return false;
-    const years = seenName.get(norm(r.full_name));
-    if (years && years.some((y) => y === null || r.class_year === null || y === r.class_year)) return false;
-    if (r.email) seenEmail.add(norm(r.email));
-    seenName.set(norm(r.full_name), [...(years ?? []), r.class_year]);
+    if (known.some((k) => same(k, r))) return false;
+    known.push(r);
     return true;
   });
   const skipped = records.length - fresh.length;

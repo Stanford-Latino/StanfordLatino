@@ -410,3 +410,5 @@ textarea.input { resize: vertical; font: inherit; }
 .photo-confirm button:first-child { background: var(--maroon); color: #fff; }
 .lightbox { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.9); display: flex; align-items: center; justify-content: center; padding: 24px; cursor: zoom-out; }
 .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+.form-top-error { background: #fbeaea; border-left: 4px solid var(--maroon); padding: 12px 14px; font-size: 16px; color: var(--ink); }

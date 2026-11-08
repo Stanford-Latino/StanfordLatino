@@ -83,6 +83,12 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
   }
   let linkedin_url = text(f, 'linkedin_url', 300);
   if (linkedin_url && !/^https?:\/\//i.test(linkedin_url)) linkedin_url = `https://${linkedin_url}`;
+  const email = text(f, 'email', 200);
+  const { data: dup } = await supabase.rpc('alumni_duplicate', {
+    p_name: full_name, p_year: class_year, p_email: email, p_linkedin: linkedin_url,
+  });
+  if (dup === 'approved') return { error: `${full_name} is already in the directory.` };
+  if (dup === 'pending') return { error: `${full_name} already has a request waiting for approval.` };
   const board = await isBoardMember();
   const { error } = await supabase.from('alumni').insert({
     status: board ? 'approved' : 'pending',
@@ -94,7 +100,7 @@ export async function addAlum(_prev: FormState, f: FormData): Promise<FormState>
     industry: text(f, 'industry', 80),
     city: text(f, 'city', 120),
     linkedin_url,
-    email: text(f, 'email', 200),
+    email,
     photo_url: storedPath(f, 'photo_path', 'alumni/'),
   });
   if (error) return { error: 'Couldn’t send this. Try again.' };
@@ -177,11 +183,32 @@ export async function importAlumni(_prev: FormState, f: FormData): Promise<FormS
     });
   if (!records.length) return { error: 'No rows with a name were found.' };
 
-  const { error } = await supabase.from('alumni').insert(records);
+  // Skip anyone already in the directory (or listed twice in the file).
+  const { data: existing } = await supabase.from('alumni').select('full_name, class_year, email');
+  const norm = (v: string | null | undefined) => (v ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const seenEmail = new Set((existing ?? []).map((e) => norm(e.email)).filter(Boolean));
+  const seenName = new Map<string, (number | null)[]>();
+  (existing ?? []).forEach((e) => seenName.set(norm(e.full_name), [...(seenName.get(norm(e.full_name)) ?? []), e.class_year]));
+  const fresh = records.filter((r) => {
+    if (r.email && seenEmail.has(norm(r.email))) return false;
+    const years = seenName.get(norm(r.full_name));
+    if (years && years.some((y) => y === null || r.class_year === null || y === r.class_year)) return false;
+    if (r.email) seenEmail.add(norm(r.email));
+    seenName.set(norm(r.full_name), [...(years ?? []), r.class_year]);
+    return true;
+  });
+  const skipped = records.length - fresh.length;
+  if (!fresh.length) return { error: 'Everyone in this file is already in the directory.' };
+
+  const { error } = await supabase.from('alumni').insert(fresh);
   if (error) return { error: 'Couldn’t import the file. Check it matches the template and try again.' };
   revalidatePath('/members/alumni');
-  await notifyPresidents(`Spreadsheet upload: ${records.length} alumni added`, '/members/alumni');
-  return { ok: true, message: `Added ${records.length} ${records.length === 1 ? 'person' : 'people'} to the directory.` };
+  await notifyPresidents(`Spreadsheet upload: ${fresh.length} alumni added`, '/members/alumni');
+  return {
+    ok: true,
+    message: `Added ${fresh.length} ${fresh.length === 1 ? 'person' : 'people'} to the directory.`
+      + (skipped ? ` Skipped ${skipped} already in it.` : ''),
+  };
 }
 
 /** Board: rename an album. */

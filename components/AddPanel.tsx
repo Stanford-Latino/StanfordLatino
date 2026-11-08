@@ -53,8 +53,8 @@ export default function AddPanel({ buttonLabel, title, submitLabel, action, chil
       {open && (
         <form ref={formRef} action={formAction} className="add-form">
           <h2>{title}</h2>
+          {state.error && <p role="alert" className="error form-top-error">{state.error}</p>}
           <div className="add-fields">{children}</div>
-          {state.error && <p role="alert" className="error">{state.error}</p>}
           <div className="add-actions">
             <button className="btn" disabled={pending}>{pending ? 'Saving…' : submitLabel}</button>
             <button type="button" className="btn btn-outline" onClick={() => setOpen(false)}>Cancel</button>
